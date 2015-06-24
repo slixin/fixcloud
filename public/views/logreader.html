@@ -1,0 +1,21 @@
+﻿<div ng-controller="ctrlLogReader">
+    <p><button id="btnParse" type="button" class="btn btn-info" ng-click="onParse()">PARSE</button>&nbsp;<button id="btnCopy" type="button" class="btn btn-info" clip-copy="originalLog" ng-click="onCopy()">COPY</button>&nbsp;<button id="btnClean" type="button" class="btn btn-info" ng-click="onClean()">CLEAN</button></p>
+    <textarea id="log" class="form-control" rows="8"  ng-model="originalLog"></textarea>
+    <div>
+        <table st-table="displayedCollection" st-safe-src="rowCollection" class="table table-striped">
+          <thead>
+            <tr>
+              <th st-sort="message">Message</th>
+            </tr>
+            <tr>
+              <th><input st-search="'message'" placeholder="" class="input-sm form-control" type="search"/></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="row in displayedCollection">
+              <td>{{row.message}}</td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,93 @@
+<div class="container-fluid" ng-controller="ctrlSession">
+  <div id="sessionHeader">
+    <div id="sessionConnection">
+      <div class="form-group" style="display:inline-block;width:120px">
+        <label for="name">Name:</label><input type="text" class="form-control" id="name" ng-model="session.name" required ng-disabled="!sessionPanel.isEditable" tooltip="{{session.name}}">
+      </div>
+      <div class="form-group" style="display:inline-block;width:120px">
+        <label for="version">Version:</label><input type="text" class="form-control" id="version" ng-model="session.version" required ng-disabled="!sessionPanel.isEditable" tooltip="{{session.version}}">
+      </div>
+      <div class="form-group" style="display:inline-block;width:120px">
+        <label for="sender">Sender:</label><input type="text" class="form-control" id="sender" ng-model="session.sender" required ng-disabled="!sessionPanel.isEditable" tooltip="{{session.sender}}">
+      </div>
+      <div class="form-group" style="display:inline-block;width:120px">
+        <label for="target">Target:</label><input type="text" class="form-control" id="target" ng-model="session.target" required ng-disabled="!sessionPanel.isEditable" tooltip="{{session.target}}">
+      </div>
+      <div class="form-group" style="display:inline-block;width:120px">
+        <label for="host">Host:</label><input type="text" class="form-control" id="host" ng-model="session.host" required ng-disabled="!sessionPanel.isEditable" tooltip="{{session.host}}">
+      </div>
+      <div class="form-group" style="display:inline-block;width:120px">
+        <label for="port">Port:</label><input type="text" class="form-control" id="port" ng-model="session.port" required ng-disabled="!sessionPanel.isEditable" tooltip="{{session.port}}">
+      </div>
+      <div class="form-group" style="display:inline-block;width:120px">
+        <button id="btnSessionC" class="btn {{sessionPanel.btnStyle}}" type="submit" ng-click="onSessionConnection()">{{sessionPanel.btnText}}</button>
+      </div>
+    </div>
+    <div class="input-group">
+      <input type="text" class="form-control" ng-model="inputmessage" placeholder="Enter FIX message">
+      <div class="input-group-btn">
+        <button type="button" class="btn btn-default" ng-click="onSend()">Send</button>
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span class="caret"></span>
+          <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <li><a href="" clip-copy="inputmessage" ng-click="onCopy()"><i class="glyphicon glyphicon-copy"></i> Copy</a></li>
+          <li><a href="" ng-click="onClean()"><i class="glyphicon glyphicon-remove"></i> Clean</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="" ng-click="onAdvanceInput()"><i class="glyphicon glyphicon-th-large"></i> Advanced</a></li>
+        </ul>
+      </div>
+    </div>
+    <hr/>
+    <div id="sessionMessage">
+    <tabset>
+      <tab heading="RAW">
+        <div><button id="btnCleanMessage" type="button" class="btn btn-info" ng-click="onCleanMessage()">CLEAN</button>&nbsp;<button id="btnExport" type="button" class="btn btn-info" ng-click="onExportMessages()">EXPORT</button></div>
+        <table st-table="originalDisplayedCollection" st-safe-src="originalRowCollection" class="table table-striped">
+          <thead>
+            <tr>
+              <th>
+                  <select st-search="'direction'" class="form-control">
+                      <option value=""></option>
+                      <option value="incoming">IN</option>
+                      <option value="outgoing">OUT</option>
+                  </select>
+              </th>
+              <th><input st-search="'message'" placeholder="Filter message by keywords" class="input-sm form-control" type="search"/></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="row in originalDisplayedCollection"  class="{{row.color}}">
+              <td><span class="{{row.directionIcon}}" title="{{row.direction}}"></span></td>
+              <td>{{row.message}}</td>
+              <td><a href="" clip-copy="row.message"><i class="glyphicon glyphicon-copy"></i></a></td>
+            </tr>
+          </tbody>
+        </table>
+      </tab>
+      <tab heading="Formatted">
+        <table st-table="formattedDisplayedCollection" st-safe-src="formattedRowCollection" class="table table-striped">
+          <thead>
+            <tr>
+              <th st-sort="direction">Direction</th>
+              <th st-sort="message">Message</th>
+            </tr>
+            <tr>
+              <th></th>
+              <th><input st-search="'message'" placeholder="" class="input-sm form-control" type="search"/></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="row in formattedDisplayedCollection">
+              <td><span class="{{row.directionIcon}}" title="{{row.direction}}"></span></td>
+              <td>{{row.message}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </tab>
+    </tabset>
+    </div>
+  </div>
+</div>
+

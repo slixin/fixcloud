@@ -1,0 +1,54 @@
+﻿<!doctype html>
+<html ng-app="app" xmlns:ng="http://angularjs.org">
+    <title>IRESS Node</title>
+    <head>
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script src="javascripts/angular.min.js"></script>
+        <script src="javascripts/angular-resource.min.js"></script>
+        <script src="javascripts/angular-route.min.js"></script>
+        <script src="javascripts/Chart.min.js"></script>
+        <script src="javascripts/angular-chart.min.js"></script>
+        <script src="javascripts/smart-table.min.js"></script>
+        <script src="javascripts/comm.js"></script>
+        <script src="javascripts/app.js"></script>
+        <script src="javascripts/bootbox.min.js"></script>
+        <script src="javascripts/xeditable.min.js"></script>
+        <script src="javascripts/ngBootbox.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/zeroclipboard/2.1.6/ZeroClipboard.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/ng-clip/0.2.6/ng-clip.min.js"></script>
+        <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.5.0.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.13.0/ui-bootstrap-tpls.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+        <script src="http://code.angularjs.org/1.0.0rc10/angular-cookies-1.0.0rc10.js"></script>
+
+        <link rel="stylesheet" href="stylesheets/style.css">
+        <link rel="stylesheet" href="stylesheets/angular-chart.css">
+        <link rel="stylesheet" href="stylesheets/xeditable.css" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    </head>
+    <body>
+        <div>
+            <nav class="navbar navbar-default navbar-fixed-top">
+                <div class="container-fluid">
+                    <div class="navbar-header" style="float:left;display:inline-block;">
+                        <div class="collapse navbar-collapse" style="float:left;display:inline-block;margin:2px">
+                            <a href="#">
+                                <i class="fa fa-cog fa-3x"></i>
+                            </a>
+                        </div>
+                        <div class="collapse navbar-collapse" style="float:left;display:inline-block">
+                            <ul class="nav navbar-nav" ng-controller="navCtrl">
+                                <li ng-class="navClass('home')"><a href='/#/'><span class="glyphicon glyphicon-home"></span> Home</a></li>
+                                <li ng-class="navClass('fixclient')"><a href='/#/fixclient'><span class="glyphicon glyphicon-record"></span> FixClient</a></li>
+                                <li ng-class="navClass('logreader')"><a href='/#/logreader'><span class="glyphicon glyphicon-comment"></span> Log Reader</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <div style="height:55px">&nbsp;</div>
+            <div ng-view></div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,49 @@
+﻿<div>
+    <nav class="navbar navbar-inverse navbar-fixed-bottom">
+      <div class="container-fluid">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav">
+                <li ng-show="loggedinUser != null">
+                    <a href="">Welcome, {{loggedinUser.username}}</a>
+                </li>
+                <li ng-show="loggedinUser == null">
+                    <a class="btn btn-social-icon btn-facebook" ng-click="fbSignIn()">
+                        <i class="fa fa-facebook"></i> Sign in with Facebook
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div>
+          <ul class="nav navbar-nav">
+            <li class="dropdown" ng-show="loggedinUser != null && loggedinUser.usersettings.length > 0">
+              <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-list"></span> MY SETTINGS <span class="caret"></span></a>
+              <ul class="dropdown-menu navbar-default" role="menu">
+                <li ng-repeat="setting in loggedinUser.usersettings">
+                    <a href="" ng-click="onSelectSetting(setting)"><span class="glyphicon glyphicon-ok" ng-if="setting.isactive"></span><span class="glyphicon glyphicon-minus" ng-if="!setting.isactive"></span> {{setting.name}}</a>
+                </li>
+              </ul>
+            </li>
+            <li ng-show="loggedinUser != null"><a href="" ng-bootbox-confirm="Are you sure you want to create a new setting? All unsaved changes will be lost." ng-bootbox-confirm-action="onNewSetting()" ng-bootbox-confirm-action-cancel=""><span class="glyphicon glyphicon-file"></span> NEW</a></li>
+            <li ng-show="loggedinUser != null && selectedSetting != null"><a href="" ng-bootbox-confirm="Are you sure you want to save user settings?" ng-bootbox-confirm-action="onSaveSetting(selectedSetting)" ng-bootbox-confirm-action-cancel=""><span class="glyphicon glyphicon-floppy-disk"></span> SAVE</a></li>
+            <li ng-show="loggedinUser != null && selectedSetting != null"><a href="" ng-bootbox-confirm="Are you sure you want to delete the user settings?" ng-bootbox-confirm-action="onDeleteSetting(selectedSetting)" ng-bootbox-confirm-action-cancel=""><span class="glyphicon glyphicon-floppy-remove"></span> DELETE</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div>
+        <tabset>
+            <tab ng-click="addSession()" ng-show="selectedSetting != null">
+                <tab-heading>
+                    <span class="glyphicon glyphicon-plus"></span>
+                </tab-heading>
+            </tab>
+            <tab ng-repeat="tab in settingTabs" active=tab.isactive ng-click="onClickTab(tab)">
+                <tab-heading><span ng-model="tab.name">{{tab.name}}</span> <a href="" ng-bootbox-confirm="Are you sure you want to delete the session?" ng-bootbox-confirm-action="removeSession($index)" ng-bootbox-confirm-action-cancel=""><span class="glyphicon glyphicon-remove"></span></a></tab-heading>
+                <div ng-show="tab.isactive">
+                    <div ng-include="tab.url" ng-init="tab=tab">
+                    </div>
+                </div>
+            </tab>
+        </tabset>
+    </div>
+</div>
