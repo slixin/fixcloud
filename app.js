@@ -15,6 +15,7 @@ var fs = require('fs');
 
 var routes = require('./routes/index');
 var fix = require('./routes/fix');
+var order = require('./routes/order');
 
 var app = express();
 // view engine setup
@@ -40,6 +41,7 @@ app.use(flash());
 
 app.use('/', routes);
 app.use('/fix', fix);
+app.use('/order', order);
 
 // passport config
 // =========================================================================
@@ -122,6 +124,7 @@ app.use(function errorHandler(err, req, res, next) {
 });
 
 global.sessions = new dict();
+global.servers = new dict();
 global.userSettings = new dict();
 
 module.exports = app;

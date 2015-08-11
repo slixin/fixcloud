@@ -15,7 +15,7 @@ module.exports = FIXServer;
 /*==================================================*/
 /*====================FIXServer====================*/
 /*==================================================*/
-function FIXServer(compID, options) {
+function FIXServer(options) {
   var self = this;
 
   var servers = {};
@@ -24,6 +24,7 @@ function FIXServer(compID, options) {
     var frameDecoder = new FixFrameDecoder();
     var fixSession = null;
     var perserverself = this;
+    var serverid = null;
 
     frameDecoder.on('msg', function(msgtxt) {
       var msg = fixutils.convertToMap(msgtxt);
@@ -39,7 +40,7 @@ function FIXServer(compID, options) {
         });
         perserverself.fixSession = new FIXSession(fixVersion, senderCompID, targetCompID, extendedOptions);
 
-        var serverid = perserverself.fixSession.getID();
+        serverid = perserverself.fixSession.getID();
         servers[serverid] = perserverself.fixSession;
 
         perserverself.fixSession.on('msg', function(msg) {
@@ -85,7 +86,6 @@ function FIXServer(compID, options) {
     });
 
     socket.on('data', function(data) {
-
       frameDecoder.processData(data);
     });
 
@@ -96,15 +96,24 @@ function FIXServer(compID, options) {
           shouldSendHeartbeats: false,
           shouldExpectHeartbeats: false
         });
-        //TODO self.emit('disconnect',serverid);
+        perserverself.fixSession.endSession();
+        delete perserverself.fixSession;
+        //self.emit('disconnect', serverid);
       }
     });
   });
 
+  this.echo = function(msg) {
+    server.fixSession.sendMsg(msg);
+  }
 
   this.listen = function() {
     server.listen.apply(server, arguments);
     //server.listen(arguments);
   };
+
+  this.close = function() {
+    server.close();
+  }
 }
 util.inherits(FIXServer, events.EventEmitter);

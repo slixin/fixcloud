@@ -16,10 +16,10 @@
         <div>
           <ul class="nav navbar-nav">
             <li class="dropdown" ng-show="loggedinUser != null && loggedinUser.usersettings.length > 0">
-              <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-list"></span> MY SETTINGS <span class="caret"></span></a>
+              <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-list"></span> SETTINGS <span class="caret"></span></a>
               <ul class="dropdown-menu navbar-default" role="menu">
                 <li ng-repeat="setting in loggedinUser.usersettings">
-                    <a href="" ng-click="onSelectSetting(setting)"><span class="glyphicon glyphicon-ok" ng-if="setting.isactive"></span><span class="glyphicon glyphicon-minus" ng-if="!setting.isactive"></span> {{setting.name}}</a>
+                    <a href="" ng-click="onSelectSetting(setting)">{{setting.name}} <span class="glyphicon glyphicon-ok" ng-if="setting.isactive"></span></a>
                 </li>
               </ul>
             </li>
@@ -38,7 +38,7 @@
                 </tab-heading>
             </tab>
             <tab ng-repeat="tab in settingTabs" active=tab.isactive ng-click="onClickTab(tab)">
-                <tab-heading><span ng-model="tab.name">{{tab.name}}</span> <a href="" ng-bootbox-confirm="Are you sure you want to delete the session?" ng-bootbox-confirm-action="removeSession($index)" ng-bootbox-confirm-action-cancel=""><span class="glyphicon glyphicon-remove"></span></a></tab-heading>
+                <tab-heading><i class="fa fa-dot-circle-o"></i> <span ng-model="tab.name">{{tab.name}}</span> <a href="" ng-bootbox-confirm="Are you sure you want to delete the session?" ng-bootbox-confirm-action="removeSession($index)" ng-bootbox-confirm-action-cancel=""><span class="glyphicon glyphicon-remove"></span></a></tab-heading>
                 <div ng-show="tab.isactive">
                     <div ng-include="tab.url" ng-init="tab=tab">
                     </div>

@@ -63,6 +63,17 @@ function FIXClient(fixVersion, senderCompID, targetCompID, options) {
     session.sendMsg(msg);
   }
 
+  this.sendMsgCallback = function(msg, callback){
+    var client_order_id = msg[11];
+    session.sendMsg(msg);
+    session.on('msg', function(msg) {
+        if (msg[11] == client_order_id)
+          callback(msg, true);
+        if (msg[35] == 3 || msg[35] == 9 || msg[35] == 'AG' || msg[35] == 'j')
+          callback(msg, false);
+    });
+  }
+
   //[PUBLIC] Sends logon FIX json to counter party
   this.sendLogon = function() {
     session.sendLogon();
@@ -86,6 +97,26 @@ function FIXClient(fixVersion, senderCompID, targetCompID, options) {
 
 
   this.createConnection = function(options, errorcallback, listener) {
+
+    var transferMsgToText = function(msg){
+      var SOHCHAR = exports.SOHCHAR = String.fromCharCode(1);
+      var re = new RegExp(SOHCHAR, 'g');
+      return msg.replace(re, " ");
+    }
+
+    var transferJSONToText = function(msg){
+      var msgarr = [];
+      for(var tag in msg)
+      {
+        if (msg.hasOwnProperty(tag) && tag.length > 0)
+        {
+          msgarr.push(tag+"="+msg[tag]);
+        }
+      }
+
+      return msgarr.join(" ");
+    }
+
     self.socket = net.createConnection(options, function() {
       //client connected, create fix session
       var fixFrameDecoder = new FixFrameDecoder();
@@ -101,14 +132,16 @@ function FIXClient(fixVersion, senderCompID, targetCompID, options) {
       session.on('outmsg', function(msg) {
         var outstr = fixutils.convertMapToFIX(msg);
         self.socket.write(outstr);
-        self.emit('outmsg', msg);
+        var msgtxt = transferMsgToText(outstr);
+        self.emit('outmsg', msgtxt);
       });
       session.on('endsession', function() {
         self.socket.end();
         self.emit('endsession');
       });
       session.on('msg', function(msg) {
-        self.emit('msg', msg);
+        var msgtxt = transferJSONToText(msg);
+        self.emit('msg', msgtxt);
       });
       session.on('logon', function() {
         self.emit('logon');
