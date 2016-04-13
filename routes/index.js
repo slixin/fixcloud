@@ -2,137 +2,164 @@
 var passport = require("passport");
 var router = express.Router();
 var fs = require("fs");
+var path = require('path');
+var portfinder = require('portfinder');
+var socket_io = require('socket.io')
+var http = require('http');
+
+var listener_server = http.createServer(function(){});
 
 /* GET home page. */
 router.get('/', function (req, res) {
     res.redirect("/index.html");
 });
 
-router.get('/auth/facebook', passport.authenticate('facebook',{
-  display: 'popup'})
-);
-
-// handle the callback after facebook has authenticated the user
-router.get('/auth/facebook/callback', passport.authenticate('facebook', {
-        successRedirect : '/signin.html',
-        failureRedirect : '/',
-        failureFlash: true
-    }),
-    function(req, res) {
-        res.send({status:"ok"});
+router.post('/user/load', ensureAuthenticated, function (req, res){
+    var userId = req.body.userid;
+    var user = {
+        id: userId,
+        settings: null
+    };
+    if (global.users.has(userId)) {
+        user.settings = global.users.get(userId).settings;
+        res.send({status:true, user: user});
+    } else {
+        var userFile = path.resolve(global.rootpath+"/usersettings/"+userId+".json");
+        fs.exists(userFile, function(exists) {
+            if (exists) {
+                fs.readFile(userFile, 'utf8', function(err, data) {
+                    if (err) res.send({status:false, error: err});
+                    else{
+                        user.settings = JSON.parse(data).settings;
+                        startClientlistener(user, function(listener) {
+                            var cached_user = {
+                                id: user.id,
+                                settings: user.settings,
+                                listener: listener
+                            }
+                            global.users.set(userId, cached_user);
+                            res.send({status:true, user: user});
+                        });
+                    }
+                });
+            }
+            else
+            {
+                startClientlistener(user, function(listener) {
+                    var cached_user = {
+                        id: user.id,
+                        settings: user.settings,
+                        listener: listener
+                    }
+                    global.users.set(userId, cached_user);
+                    fs.writeFile(userFile, JSON.stringify(user), 'utf8', function(err) {
+                        if (err) { res.send({status:false, error: err}); }
+                        else { res.send({status:true, user: user}); }
+                    });
+                });
+            }
+        });
     }
-);
+})
 
-router.get('/islogin', ensureAuthenticated, function(req, res){
-    res.send({status:"ok", id: req.user.id, displayname: req.user.displayName});
-});
-
-// route for logging out
-router.get('/logout', function(req, res) {
-    req.logout();
-    res.redirect('/index.html');
-});
-
-router.post('/deletesetting', ensureAuthenticated, function (req, res){
-    var userId = req.body.userid;
-    var setting = req.body.setting;
-    var userFile = __dirname + '../..' + '/usersettings/'+userId+'.json';
-    var content = { usersettings: []};
-
-    fs.exists(userFile, function (exists) {
-      if (exists)
-      {
-        fs.readFile(userFile, 'utf8', function(err, data) {
-            if (err)
-                res.send({status:"error", exception: err});
-            else
-            {
-                content = JSON.parse(data);
-                content.usersettings.forEach(function(value, index){
-                    if (value.id == setting.id)
-                    {
-                        content.usersettings.splice(index, 1);
-                    }
-                });
-
-                fs.writeFile(userFile, JSON.stringify(content), 'utf8', function(err) {
-                    if (err)
-                        res.send({status:"error", exception: err});
-                    else
-                        res.send({status:"ok"});
-                  });;
-            }
-        });;
-      }
+router.post('/user/save', ensureAuthenticated, function (req, res){
+    var user = req.body.user;
+    var user_id = user.id;
+    var userFile = path.resolve(global.rootpath+"/usersettings/"+user_id+".json");
+    global.users.get(user_id).settings = user.settings;
+    fs.writeFile(userFile, JSON.stringify(user), 'utf8', function(err) {
+        if (err) { res.send({status:false, error: err}); }
+        else { res.send({status:true}); }
     });
 })
 
-router.post('/savesetting', ensureAuthenticated, function (req, res){
-    var userId = req.body.userid;
-    var newsetting = req.body.setting;
-    var userFile = __dirname + '../..' + '/usersettings/'+userId+'.json';
-    var content = { usersettings: []};
-
-    fs.exists(userFile, function (exists) {
-      if (exists)
-      {
-        fs.readFile(userFile, 'utf8', function(err, data) {
-            if (err)
-                res.send({status:"error", exception: err});
-            else
-            {
-                var isedit = false;
-                content = JSON.parse(data);
-                content.usersettings.forEach(function(value, index){
-                    if (value.id == newsetting.id)
-                    {
-                        content.usersettings[index] = newsetting;
-                        isedit = true;
-                    }
-                    else
-                    {
-                        value.isactive = false; //Inactive all other setting
-                    }
-                });
-                if (!isedit)
-                    content.usersettings.push(newsetting);
-
-                fs.writeFile(userFile, JSON.stringify(content), 'utf8', function(err) {
-                    if (err)
-                        res.send({status:"error", exception: err});
-                    else
-                        res.send({status:"ok"});
-                  });;
+router.post('/protocol/messagetypes', function (req, res){
+    var version = req.body.version;
+    var messagetypes = [];
+    var protocols = global.protocols.get(version);
+    if (protocols != undefined)
+    {
+        protocols.fix.messages.message.forEach(function(msgtype){
+            var messagetype = {
+                displayname: msgtype._name,
+                type: msgtype._msgtype
             }
-        });;
-      }
-      else // create new file
-      {
-        content.usersettings.push(newsetting);
-        fs.writeFile(userFile, JSON.stringify(content), 'utf8', function(err) {
-            if (err)
-                res.send({status:"error", exception: err});
-            else
-                res.send({status:"ok"});
-          });;
-      }
-    });
+            messagetypes.push(messagetype);
+        });
+
+        messagetypes.sort(function(a, b) {if (a.name < b.name)  return -1; if (a.name > b.name) return 1;  return 0;});
+
+        res.send({status:true, messagetypes: messagetypes});
+    }
+    else
+    {
+        res.send({status:false, error: "Version:"+version+", No protocol definition file."});
+    }
 })
 
-router.post('/loadsettings', ensureAuthenticated, function (req, res){
-    var userId = req.body.userid;
-    var userFile = __dirname + '../..' + '/usersettings/'+userId+'.json';
-    fs.readFile(userFile, 'utf8', function(err, data) {
-        if (err)
-            res.send({status:"error", exception: err});
-        else
-            res.send({status:"ok", settings: data});
-    });;
-})
+router.post('/protocol/fields', function (req, res){
+    var version = req.body.version;
+    var fields = [];
+    var protocols = global.protocols.get(version);
+    if (protocols != undefined)
+    {
+        protocols.fix.fields.field.forEach(function(f){
+            var field = {
+                displayname: f._name,
+                field: f._number,
+                values: [],
+            }
+            if(f.hasOwnProperty("value"))
+            {
+                if (Array.isArray(f.value))
+                {
+                    f.value.forEach(function(v){
+                        var value_pair = {
+                            value: v._enum,
+                            name: v._description
+                        };
+                        field.values.push(value_pair);
+                    });
+                }
+                else
+                {
+                    field.values.push(f.value);
+                }
+            }
+            fields.push(field);
+        });
+
+        res.send({status:true, fields: fields});
+    }
+    else
+    {
+        res.send({status:false, error: "Version:"+version+", No protocol definition file."});
+    }
+});
+
+var startClientlistener = function(user, callback) {
+    portfinder.basePort = 40000;
+    portfinder.getPort(function(err, port) {
+        if (err) util.request_error(res, err);
+
+        var io = socket_io(port);
+        var listener = {
+            port: port,
+            socket: io
+        };
+
+        io.on('connection', function (socket) {
+            socket.on('message', function (from, msg) { console.log('From: ' + from + ', message:' + msg) });
+            socket.on('disconnect', function () { socket.disconnect() });
+        });
+        callback(listener);
+    });
+}
 
 function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) { return next(); }
-    res.send({status:"error", exception: "nonauth"});
+    res.status(404);
+    res.send("No authentication");
 }
 
 module.exports = router;

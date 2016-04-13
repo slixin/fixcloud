@@ -1,54 +1,141 @@
 ﻿<!doctype html>
 <html ng-app="app" xmlns:ng="http://angularjs.org">
-    <title>IRESS Node</title>
+    <title>FIX Centre</title>
     <head>
-        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-        <script src="javascripts/angular.min.js"></script>
-        <script src="javascripts/angular-resource.min.js"></script>
-        <script src="javascripts/angular-route.min.js"></script>
-        <script src="javascripts/Chart.min.js"></script>
-        <script src="javascripts/angular-chart.min.js"></script>
-        <script src="javascripts/smart-table.min.js"></script>
-        <script src="javascripts/comm.js"></script>
-        <script src="javascripts/app.js"></script>
-        <script src="javascripts/bootbox.min.js"></script>
-        <script src="javascripts/xeditable.min.js"></script>
-        <script src="javascripts/ngBootbox.min.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/zeroclipboard/2.1.6/ZeroClipboard.min.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/ng-clip/0.2.6/ng-clip.min.js"></script>
-        <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.5.0.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.13.0/ui-bootstrap-tpls.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-        <script src="http://code.angularjs.org/1.0.0rc10/angular-cookies-1.0.0rc10.js"></script>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.css">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/angular-chart.js/0.9.0/angular-chart.css">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.1.11/css/xeditable.css" />
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.3.2/jquery.textcomplete.css" />
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.css">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css">
+        <link rel='stylesheet' href='//fonts.googleapis.com/css?family=Lato:300,400,300italic,400italic'>
+        <link rel='stylesheet' href='//fonts.googleapis.com/css?family=Montserrat:400,700'>
+        <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/prism/1.4.1/themes/prism.css'/>
         <link rel="stylesheet" href="stylesheets/style.css">
-        <link rel="stylesheet" href="stylesheets/angular-chart.css">
-        <link rel="stylesheet" href="stylesheets/xeditable.css" />
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="stylesheets/styles.css">
+        <link rel="stylesheet" href="stylesheets/jsoneditor.css">
+        <link rel="stylesheet" href="stylesheets/timeline-style.css">
+        <link rel="shortcut icon" type="image/png" href="favicon.ico">
+
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.3/angular-route.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-animate.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.3/angular-cookies.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.3/angular-resource.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.5.3/angular-sanitize.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular-local-storage/0.2.7/angular-local-storage.js"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular-chart.js/0.9.0/angular-chart.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular-smart-table/2.1.8/smart-table.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.1.11/js/xeditable.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.3.2/jquery.textcomplete.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/zeroclipboard/2.2.0/ZeroClipboard.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/ng-clip/0.2.6/ng-clip.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/select2.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/prism/1.4.1/prism.js"></script>
+        <script src="javascripts/ui-bootstrap-tpls-1.3.1.js"></script>
+        <script src="javascripts/jsoneditor.js"></script>
+        <script src="javascripts/ng-jsoneditor.js"></script>
+        <script src="javascripts/app/app.js"></script>
+        <script src="javascripts/app/nav.js"></script>
+        <script src="javascripts/app/home.js"></script>
+        <script src="javascripts/app/main.js"></script>
+        <script src="javascripts/app/client.js"></script>
+        <script src="javascripts/app/session.js"></script>
+        <script src="javascripts/app/server.js"></script>
+        <script src="javascripts/app/service.js"></script>
+        <script src="javascripts/main.js"></script>
+        <script src="javascripts/comm.js"></script>
     </head>
-    <body>
-        <div>
-            <nav class="navbar navbar-default navbar-fixed-top">
-                <div class="container-fluid">
-                    <div class="navbar-header" style="float:left;display:inline-block;">
-                        <div class="collapse navbar-collapse" style="float:left;display:inline-block;margin:2px">
-                            <a href="#">
-                                <i class="fa fa-cog fa-3x"></i>
-                            </a>
-                        </div>
-                        <div class="collapse navbar-collapse" style="float:left;display:inline-block">
-                            <ul class="nav navbar-nav" ng-controller="navCtrl">
-                                <li ng-class="navClass('home')"><a href='/#/'><span class="glyphicon glyphicon-home"></span> Home</a></li>
-                                <li ng-class="navClass('fixclient')"><a href='/#/fixclient'><span class="glyphicon glyphicon-record"></span> FixClient</a></li>
-                                <li ng-class="navClass('logreader')"><a href='/#/logreader'><span class="glyphicon glyphicon-comment"></span> Log Reader</a></li>
-                            </ul>
-                        </div>
+
+    <body data-spy="scroll"  ng-controller="ctrlMain">
+        <header id="header" class="header">
+            <div class="container">
+                <h1 class="logo pull-left">
+                    <a href=""><span class="logo-title">FIX Centre</span></a>
+                </h1>
+                <nav id="main-nav" class="main-nav navbar-right" role="navigation">
+                    <div class="navbar-collapse collapse" id="navbar-collapse" ng-controller="ctrlNav">
+                        <ul class="nav navbar-nav" >
+                            <li class="nav-item" ng-show="user.id != null">
+                                <a href="">Welcome, {{user.displayname}}</a>
+                            </li>
+                            <li class="nav-item" id="tabHome" ><a href='/#/' title="Home"><i class="fa fa-home fa-lg"></i> Home</a></li>
+                            <li class="nav-item" id="tabClient" ><a href='/#/fixclient' title="Client"><i class="fa fa-desktop fa-lg"></i> Client</a></li>
+                            <li class="nav-item" id="tabServer" ><a href='/#/fixserver' title="Server"><i class="fa fa-server fa-lg"></i> Server</a></li>
+                            <li class="nav-item" id="btnFBSignIn" ng-show="user.id == null">
+                                <a class="btn btn-social-icon btn-facebook" ng-click="fbSignIn()"><i class="fa fa-facebook-official fa-lg"></i> Sign in</a>
+                            </li>
+                            <li class="nav-item" id="btnFBSignOut" ng-show="user.id != null">
+                               <a href="" title="Sign Out" ng-click="fbSignOut()"><i class="fa fa-sign-out  fa-lg"></i> Sign Out</a>
+                            </li>
+                            <li class="nav-item" id="btnSaveUser" ng-show="user.id != null && isModified()">
+                                <a href="" title="Save User" ng-click="saveUser()"><i class="fa fa-floppy-o  fa-lg fa-spin"></i> Save</a>
+                            </li>
+                            <li class="nav-item" ng-class="navClass('help')">
+                                <a href="" title="Help" ng-click="onShowHelper()"><i class="fa fa-question-circle fa-lg"></i> Help</a>
+                            </li>
+                        </ul>
                     </div>
-                </div>
-            </nav>
-            <div style="height:55px">&nbsp;</div>
-            <div ng-view></div>
-        </div>
+                </nav>
+            </div>
+        </header>
+        <div ng-view class="view_detail"></div>
+        <footer class="footer">
+            <div class="container text-center">
+                <small class="copyright">Powered by <a href="mailto:steve.li@iress.com.au" target="_blank">Steve Li</a></small>
+            </div>
+        </footer>
     </body>
 </html>
+    <!-- <body>
+        <div ng-controller="ctrlMain">
+            <nav class="navbar navbar-default navbar-fixed-top" >
+                <div class="container-fluid">
+                    <div class="collapse navbar-collapse" style="float:left;display:inline-block;margin:2px">
+                            <img class='likeordislike' alt="IRESS Test FIX Center" height="45" width="45" src="images/logo.png" title="IRESS Test FIX Center">
+                        </div>
+                        <div class="collapse navbar-collapse" style="float:left;display:inline-block">
+                            <ul class="nav navbar-nav" ng-controller="ctrlNav">
+                                <li ng-class="navClass('home')"><a href='/#/' title="Home"><span class="fa fa-home fa-lg"></span> Home</a></li>
+                                <li id="tabClient" ng-class="navClass('fixclient')"><a href='/#/fixclient' title="Client"><span class="fa fa-desktop fa-lg"></span> Client</a></li>
+                                <li id="tabServer" ng-class="navClass('fixserver')"><a href='/#/fixserver' title="Server"><span class="fa fa-server fa-lg"></span> Server</a></li>
+                            </ul>
+                        </div>
+                        <div class="collapse navbar-collapse" style="float:right;display:inline-block">
+                            <ul class="nav navbar-nav">
+                                <li ng-show="user.id != null">
+                                    <a>Welcome, {{user.displayname}}</a>
+                                </li>
+                                <li id="btnFBSignOut" ng-show="user.id != null">
+                                   <a href="" title="Sign Out" ng-click="fbSignOut()"><i class="fa fa-sign-out  fa-lg"></i> </a>
+                                </li>
+                                <li>&nbsp;
+                                </li>
+                                <li id="btnSaveUser" ng-show="user.id != null && isModified()">
+                                    <a href="" title="Save User" ng-click="saveUser()"><i class="fa fa-floppy-o  fa-lg fa-spin"></i> </a>
+                                </li>
+                                <li id="btnFBSignIn" ng-show="user.id == null">
+                                    <a class="btn btn-social-icon btn-facebook" ng-click="fbSignIn()">
+                                        Sign in <i class="fa fa-facebook-official fa-lg"></i>
+                                    </a>
+                                </li>
+                                <li ng-class="navClass('help')">
+                                    <a href="" title="Help" ng-click="onShowHelper()"><span class="fa fa-question-circle fa-lg"></span> </a>
+                                </li>
+                            </ul>
+                        </div>
+                </div>
+            </nav>
+            <div ng-view class="view_detail"></div>
+        </div>
+    </body>
+</html> -->

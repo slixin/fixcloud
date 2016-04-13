@@ -1,0 +1,53 @@
+<div class="modal-header">
+    <h3>How to use FIX message Editor?</h3>
+</div>
+<div class="modal-body">
+  <div class="panel panel-default">
+    <div class="panel-heading">How to enter FIX message</div>
+    <div class="panel-body">
+      <p>FIX Centre use <b>JSON</b> format data as FIX message format</p>
+      <p>There are 4 ways to enter the FIX messages: Tree / Form / Code / Text</p>
+      <p>Even you have no idea of JSON format, you can use Tree or Form mode to edit your message.</p>
+      <p><img src="images/help/h1.png"></p>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading">Repeating group</div>
+    <div class="panel-body">
+      <p>When you are going to create some FIX message includes <b>multiple-leg</b> or <b>repeating group</b></p>
+      <p>You can use <b>{ value: xxx, groups: [{},{}]}</b> in the JSON message.</p>
+      <p><img src="images/help/h2.png"></p>
+      <p><img src="images/help/h3.png"></p>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading">Sequential message</div>
+    <div class="panel-body">
+      <p>When you are going to create some FIX message includes <b>multiple-leg</b> or <b>repeating group</b></p>
+      <p>You can use <b>{ value: xxx, groups: [{},{}]}</b> in the JSON message.</p>
+      <p><img src="images/help/h2.png"></p>
+      <p><img src="images/help/h3.png"></p>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading">Value placeholder</div>
+    <div class="panel-body">
+      <p>There are 2 scenarios you'd like to replace the value in the FIX message template to other value. <ul><li>Response a message, i.e. Cancel a create OK order</li><li>Enter a sequential messages, i.e. Create order, then Amend it</li></ul></p>
+      <p>You can use "<b>:[tag number]</b>" in the tag value of the template.</p>
+      <p><img src="images/help/h5.png"></p>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading">Random value for tag</div>
+    <div class="panel-body">
+      <p>Sometimes, you'd like to use some random pick value for some tag, for example: BuySellSide (54), Price (44)</p>
+      <p>You can use array in the JSON directly, it will randomly pick one value in the array</p>
+      <p><img src="images/help/h6.png"></p>
+      <p><img src="images/help/h7.png"></p>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-warning" ng-click="close()">Close</button>
+</div>
+

@@ -1,0 +1,76 @@
+<div class="container-fluid" ng-controller="ctrlService">
+  <div id="server">
+    <div id="serverSetting" class="col-md-2">
+      <div class="form-group" style="display:inline-block;width:150px">
+        <button id="btnServerSwitch" class="btn {{serverPanel.btnStyle}}" type="submit" ng-click="onServerSwitch()" ng-disabled="service.port == undefined || isPortInUse(service.port)">{{serverPanel.btnText}}</button>
+      </div>
+      <div class="form-group" style="display:inline-block;width:150px">
+        <label for="name">Name:</label><input type="text" class="form-control" id="name" ng-model="service.name" required ng-disabled="serverPanel.is_disabled" tooltip="{{service.name}}">
+      </div>
+      <div class="form-group" style="display:inline-block;width:150px">
+        <label for="port">Port:</label>
+        <div class="input-group">
+          <input type="text" class="form-control" id="port" ng-model="service.port" required ng-disabled="serverPanel.is_disabled" tooltip="{{service.port}}">
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="onReservePort()" tooltip="Pick a free port"><i class="fa fa-random"></i> </button>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-10">
+        <div class="input-group">
+          <div class="selectContainer">
+            <select id="mySel" class="form-control" ng-model="protocol.selected_message_type" ng-options="t.name for t in protocol.message_types track by t.name">
+            </select>
+          </div>
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-default" ng-click="addMessageTemplate()"><i class="fa fa-plus"></i> </button>
+          </span>
+          <span class="input-group-addon"  tooltip="Message template with required tags only">
+            <input type="checkbox" ng-model="protocol.only_required_tags"> REQ
+          </span>
+          <span class="input-group-addon"  tooltip="Format message template">
+            <input type="checkbox" ng-model="protocol.format"> FORMAT
+          </span>
+          <span class="input-group-btn">
+            <button type="button" class="btn btn-success" ng-click="onSend()" ng-disabled="!manual_data.input_message.trim()"><i class="fa fa-paper-plane"></i> Send</button>
+          </span>
+      </div>
+      <br />
+      <textarea id="manualmessage" style="max-width: 100%" rows="8" class="form-control"
+        ng-model="manual_data.input_message"
+        options="options"
+        details="details"
+        placeholder="Enter FIX message in JSON format or select message template from above"
+        ng-keydown="onKeyPress($event)" />
+      <br />
+      <div class="panel panel-primary">
+        <div class="panel-heading">SERVER TERMINAL</div>
+        <div class="panel-body">
+          <table st-table="serverMessageDisplayCollection" st-safe-src="server_data.messages.data" class="table table-striped">
+            <thead>
+              <tr>
+                <th>
+                    <select st-search="'direction'" class="form-control" style="width: 50px">
+                        <option value=""></option>
+                        <option value="incoming">IN</option>
+                        <option value="outgoing">OUT</option>
+                    </select>
+                </th>
+                <th><input st-search="'message'" placeholder="Filter message by keywords" class="input-sm form-control" type="search"/></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="row in serverMessageDisplayCollection"  class="{{row.color}}">
+                <td><span class="{{row.directionIcon}}" title="{{row.direction}}"></span></td>
+                <td>{{row.message}}</td>
+                <td><a href="" clip-copy="row.message" title="COPY"><i class="glyphicon glyphicon-copy"></i></a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

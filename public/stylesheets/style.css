@@ -1,6 +1,3 @@
-body {
-    margin: 5px;
-}
 /* Tab Navigation */
 .nav-tabs {
     margin: 0;
@@ -38,9 +35,42 @@ h3.liketext {
 .navbar-brand {
     max-width: 50%;
     width:120px;
-    height: 40px;
+    height: 10px;
 }
 td{
     table-layout: fixed;
     word-wrap: break-word;
+}
+.thumbnail {
+    position: relative;
+}
+
+.caption {
+    position: absolute;
+
+    top: 90%;
+    left: 0;
+    width: 90%;
+}
+.homeword {
+    font: 100 1.2em/125% 'Sofia', Helvetica, Sans-serif;
+}
+.row {
+   margin-top: 4px;
+   margin-bottom: 4px;
+ }
+ .view_detail{
+    padding-top: 55px;
+    padding-bottom: 20px;
+ }
+ .div-inline{
+    display:inline;
+    vertical-align: middle;
+}
+.withpad {
+    margin:2px;
+}
+
+.form-inline .form-group input {
+    width:100px;
 }

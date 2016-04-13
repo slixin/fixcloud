@@ -2,7 +2,6 @@
 var session = require('express-session');
 var path = require('path');
 var favicon = require('serve-favicon');
-var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var dict = require("dict");
@@ -10,26 +9,23 @@ var passport = require("passport");
 var FacebookStrategy = require('passport-facebook').Strategy;
 var methodOverride = require('method-override');
 var flash = require('connect-flash');
-var auth = require('./auth');
+var authConfig = require('./authConfig');
 var fs = require('fs');
 
 var routes = require('./routes/index');
-var fix = require('./routes/fix');
-var order = require('./routes/order');
+var client = require('./routes/client');
+var server = require('./routes/server');
+var auth = require('./routes/auth');
 
 var app = express();
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
 
 app.set('trust proxy', '172.17.0.20')
 app.enable('trust proxy');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({limit: '5mb'}));
+app.use(bodyParser.urlencoded({limit: '5mb',  extended: true }));
 app.use(cookieParser());
 app.use(require('stylus').middleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -40,37 +36,46 @@ app.use(passport.session());
 app.use(flash());
 
 app.use('/', routes);
-app.use('/fix', fix);
-app.use('/order', order);
+app.use('/client', client);
+app.use('/server', server);
+app.use('/auth', auth);
+
+// ######### Global Variable ######
+global.clients = new dict();
+global.servers = new dict();
+global.users = new dict();
+global.protocols = new dict();
+global.rootpath = __dirname;
+
+load_fix_protocols();
+
+function load_fix_protocols(){
+
+    fs.readdir(path.resolve(global.rootpath+"/specs"), function(err, items) {
+        items.forEach(function(item) {
+            var version = item.substr(3, 2);
+            var filename = path.resolve(global.rootpath+"/specs/fix"+version+".json");
+            fs.readFile(filename, 'utf8', function(err, data) {
+                if (err) throw err;
+                var protocol_data = JSON.parse(data);
+                var v = protocol_data.fix.major+protocol_data.fix.minor;
+                global.protocols.set(v, protocol_data);
+            });
+        });
+    });
+}
 
 // passport config
 // =========================================================================
 // FACEBOOK ================================================================
 // =========================================================================
 passport.use(new FacebookStrategy({
-    clientID: auth.facebookAuth.clientID,
-    clientSecret: auth.facebookAuth.clientSecret,
-    callbackURL: auth.facebookAuth.callbackURL,
+    clientID: authConfig.facebookAuth.clientID,
+    clientSecret: authConfig.facebookAuth.clientSecret,
+    callbackURL: authConfig.facebookAuth.callbackURL,
     passReqToCallback: true
 }, function(req, token, refreshToken, profile, done) {
     process.nextTick(function() {
-        var userId = profile.id;
-        var userFile = "/usersettings/"+userId+".json";
-        fs.exists(userFile, function(exists) {
-          if (exists) {
-            fs.readFile(userFile, 'utf8', function(err, data) {
-                if (err) throw err;
-                var settings = JSON.parse(data).settings;
-                if (global.userSettings.has(userId))
-                    global.userSettings.get(userId).settings = settings;
-                else
-                    global.userSettings.set(userId, settings);
-            });;
-          }
-          else{
-            global.userSettings.set(userId, null);
-          }
-        });
         return done(null, profile);
     });
 }));
@@ -119,12 +124,9 @@ app.use(function (err, req, res, next) {
 
 app.use(require('domain-middleware'));
 app.use(function errorHandler(err, req, res, next) {
-  console.log('error on request %d %s %s: %j', process.domain.id, req.method, req.url, err);
-  res.send(500, "Something bad happened. :(");
+  console.log('error on request %s %s: %j', req.method, req.url, err);
+  res.status(500).send(err);
 });
 
-global.sessions = new dict();
-global.servers = new dict();
-global.userSettings = new dict();
 
 module.exports = app;

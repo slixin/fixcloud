@@ -8,20 +8,20 @@ var _ = require('underscore');
 //static vars
 var SOHCHAR = String.fromCharCode(1);
 //TODO remove the need to use standard tag names: XXX.Y.Y
-var ENDOFTAG8 = 10;
-var STARTOFTAG9VAL = ENDOFTAG8 + 2;
-var SIZEOFTAG10 = 8;
+
 
 module.exports = FixFrameDecoder;
 
 
-function FixFrameDecoder() {
+function FixFrameDecoder(isnewversion) {
+  var ENDOFTAG8 = isnewversion ? 11: 10;
+  var STARTOFTAG9VAL = ENDOFTAG8 + 2;
+  var SIZEOFTAG10 = 8;
 
   this.buffer = '';
   var self = this;
 
   this.processData = function(data) {
-
     self.buffer = self.buffer + data;
     while (self.buffer.length > 0) {
       //====================================Step 1: Extract complete FIX message====================================
@@ -45,7 +45,7 @@ function FixFrameDecoder() {
       //If we don't have enough data to stop extracting body length AND we have received a lot of data
       //then perhaps there is a problem with how the message is formatted and the session should be killed
       if (idxOfEndOfTag9 < 0 && self.buffer.length > 100) {
-        var error = '[ERROR] Over 100 character received but body length still not extractable.  Message malformed: ' + databuffer.toString();
+        var error = '[ERROR] Over 100 character received but body length still not extractable.  Message malformed: ' + self.buffer.toString();
         util.log(error);
         self.emit('error', 'FATAL', error);
         return;
@@ -60,7 +60,7 @@ function FixFrameDecoder() {
       var _bodyLengthStr = self.buffer.substring(STARTOFTAG9VAL, idxOfEndOfTag9);
       var bodyLength = parseInt(_bodyLengthStr, 10);
       if (isNaN(bodyLength)) {
-        var error = "[ERROR] Unable to parse bodyLength field. Message probably malformed: bodyLength='" + _bodyLengthStr + "', msg=" + self.buffer.toString()
+        var error = "[ERROR] Unable to parse bodyLength field. Message probably malformed: bodyLength='" + _bodyLengthStr + "', msg:" + self.buffer.toString()
         util.log(error);
         self.emit('error', 'FATAL', error);
         return;
@@ -81,7 +81,6 @@ function FixFrameDecoder() {
         var remainingBuffer = self.buffer.substring(msgLength);
         self.buffer = remainingBuffer;
       }
-
       //====================================Step 2: Validate message====================================
 
       var calculatedChecksum = fixutil.checksum(msg.substr(0, msg.length - 7));

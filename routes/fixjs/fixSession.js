@@ -117,6 +117,7 @@ function FIXSession(fixVersion, senderCompID, targetCompID, opt) {
             timeOfLastOutgoing: self.timeOfLastOutgoing,
             outgoingSeqNum: self.outgoingSeqNum
         });
+
         self.emit('outmsg', prefil);
     }
 
@@ -128,6 +129,11 @@ function FIXSession(fixVersion, senderCompID, targetCompID, opt) {
             98: 0,
             141: "Y"
         };
+        if (fixVersion.indexOf("5.0") > -1)
+        {
+            fixVersion = 'FIXT.1.1'
+            msg[1137] = 7;
+        }
         self.sendMsg(msg);
     }
 
@@ -135,7 +141,7 @@ function FIXSession(fixVersion, senderCompID, targetCompID, opt) {
     this.sendLogoff = function() {
         var msg = {
             35: "5",
-            141: "Y"
+            // 141: "Y"
         };
         self.isLogoutRequested = true;
         self.sendMsg(msg);
@@ -207,9 +213,18 @@ function FIXSession(fixVersion, senderCompID, targetCompID, opt) {
 
                     //==send heartbeats
                     if (currentTime - self.timeOfLastOutgoing > heartbeatInMilliSeconds && self.options.shouldSendHeartbeats) {
-                        self.sendMsg({
-                            '35': '0'
-                        }); //heartbeat
+                        if (fixVersion.indexOf("5.0") > -1){
+                            self.sendMsg({
+                                '35': '0'
+                            }); //heartbeat
+                        }
+                        else
+                        {
+                            self.sendMsg({
+                                '35': '0',
+                            }); //heartbeat
+                        }
+
                     }
 
                     //==ask counter party to wake up
@@ -392,24 +407,26 @@ function FIXSession(fixVersion, senderCompID, targetCompID, opt) {
         if (msgType === '2') {
             //TODO remove duplication in resend processor
             //get list of msgs from archive and send them out, but gap fill admin msgs
-            self.options.datastore.each(function(json) {
-                var _msgType = json[35];
-                var _seqNo = json[34];
-                if (_.include(['A', '5', '2', '0', '1', '4'], _msgType)) {
-                    //send seq-reset with gap-fill Y
-                    self.sendMsg({
-                        '35': '4',
-                        '123': 'Y',
-                        '36': _seqNo
-                    });
-                } else {
-                    //send msg w/ posdup Y
-                    self.sendMsg(_.extend(json, {
-                        '43': 'Y'
-                    }));
-                }
-            });
-
+            if (self.options.datastore != undefined)
+            {
+                self.options.datastore.each(function(json) {
+                    var _msgType = json[35];
+                    var _seqNo = json[34];
+                    if (_.include(['A', '5', '2', '0', '1', '4'], _msgType)) {
+                        //send seq-reset with gap-fill Y
+                        self.sendMsg({
+                            '35': '4',
+                            '123': 'Y',
+                            '36': _seqNo
+                        });
+                    } else {
+                        //send msg w/ posdup Y
+                        self.sendMsg(_.extend(json, {
+                            '43': 'Y'
+                        }));
+                    }
+                });
+            }
         }
 
 

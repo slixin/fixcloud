@@ -1,92 +1,110 @@
-<div class="container-fluid" ng-controller="ctrlSession">
-  <div id="sessionHeader">
-    <div id="sessionConnection">
-      <div class="form-group" style="display:inline-block;width:120px">
-        <label for="name">Name:</label><input type="text" class="form-control" id="name" ng-model="session.name" required ng-disabled="!sessionPanel.isEditable" tooltip="{{session.name}}">
-      </div>
-      <div class="form-group" style="display:inline-block;width:120px">
-        <label for="version">Version:</label><input type="text" class="form-control" id="version" ng-model="session.version" required ng-disabled="!sessionPanel.isEditable" tooltip="{{session.version}}">
-      </div>
-      <div class="form-group" style="display:inline-block;width:120px">
-        <label for="sender">Sender:</label><input type="text" class="form-control" id="sender" ng-model="session.sender" required ng-disabled="!sessionPanel.isEditable" tooltip="{{session.sender}}">
-      </div>
-      <div class="form-group" style="display:inline-block;width:120px">
-        <label for="target">Target:</label><input type="text" class="form-control" id="target" ng-model="session.target" required ng-disabled="!sessionPanel.isEditable" tooltip="{{session.target}}">
-      </div>
-      <div class="form-group" style="display:inline-block;width:120px">
-        <label for="host">Host:</label><input type="text" class="form-control" id="host" ng-model="session.host" required ng-disabled="!sessionPanel.isEditable" tooltip="{{session.host}}">
-      </div>
-      <div class="form-group" style="display:inline-block;width:120px">
-        <label for="port">Port:</label><input type="text" class="form-control" id="port" ng-model="session.port" required ng-disabled="!sessionPanel.isEditable" tooltip="{{session.port}}">
-      </div>
-      <div class="form-group" style="display:inline-block;width:120px">
-        <button id="btnSessionC" class="btn {{sessionPanel.btnStyle}}" type="submit" ng-click="onSessionConnection()">{{sessionPanel.btnText}}</button>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-5">
+      <div class="row withpad">
+        <uib-tabset active="selected_tab">
+            <uib-tab id="tabMessage" index="0" heading="Message">
+              <div class="container-fluid">
+                <div class="row">
+                  <div id="divSelMode" class="form-group">
+                    <label for="selMode">MODE</label>
+                    <select id="selMode" class="form-control" ng-options="option.name for option in message_modes" ng-model="message.mode" ng-init="message.mode = message_modes[0]" ></select>
+                  </div>
+                  <div class="form-group" ng-show="message.mode.value == 2">
+                    <label for="inpAmount">AMOUNT</label>
+                    <input id="txtAmount" type="text" class="form-control" ng-model="message.amount" onkeypress='return event.charCode >= 48 && event.charCode <= 57' ng-disabled="message.mode.value == 1" placeholder="Amount" />
+                  </div>
+                  <div class="form-group" ng-show="message.mode.value == 2">
+                    <label for="txtTps">TPS</label>
+                    <input id="txtTps"  type="text" class="form-control" ng-model="message.tps" ng-disabled="message.mode.value == 1"onkeypress='return event.charCode >= 48 && event.charCode <= 57' placeholder="TPS" />
+                  </div>
+                </div>
+                <div class="row">
+                  <form class="form-inline" role="form" style="text-align: left;">
+                    <button id="btnSend" type="button" class="btn btn-success" ng-click="onStart()"  ng-disabled="message.text.length == 0 || message.text == undefined || message.progress_percentage > 0 || session.isconnected == false" title="Send Message"><i class="fa fa-play"></i> Send </button>
+                    <button id="btnStop" type="button" class="btn btn-default" ng-click="onStop()" title="Stop Sending" ng-disabled="message.progress_percentage == 0"><i class="fa fa-stop"></i> Stop </button>
+                    <button id="btnSave" type="button" class="btn btn-default" ng-click="onSaveTemplate()" title="Save Template" ng-disabled="message.progress_percentage > 0"><i class="fa fa-floppy-o"></i> Save </button>
+                    <button id="btnEditorHelp" type="button" class="btn btn-default" ng-click="onEditorHelper()" title="Editor Helper"><i class="fa fa-yelp"></i> Helper </button>
+                  </form>
+                </div>
+                <div class="row">
+                  <div id="editor" ng-jsoneditor ng-model="message.text" options="jsoneditor_options" style="width: 100%; height: 500px; text-align: left;"></div>
+                </div>
+              </div>
+            </uib-tab>
+            <uib-tab id="tabTemplates" index="1" heading="Templates">
+              <div class="container-fluid">
+                <div class="row">
+                  <ul class="list-group">
+                    <li class="list-group-item"><input type="text" placeholder="Search Template" ng-model="keyword_template"/></li>
+                    <li class="list-group-item {{template.active}}" ng-repeat="template in templates | filter:keyword_template"><a href="" ng-click="onDeleteTemplate(template)" style="float:left;"><i class="fa fa fa-times" title="Delete"></i></a><span title="{{template.name}}">{{template.name.length > 40 ? template.name.substring(0,40) + '...' : template.name}}</span> <a href="" ng-click="onApplyTemplate(template)" style="float:right;"><i class="fa fa-chevron-circle-right" title="Use template" ng-click="selected_tab=1"></i></a></li>
+                  </ul>
+                </div>
+              </div>
+            </uib-tab>
+            <uib-tab id="tabFields" index="2" heading="FIX Fields">
+               <ul class="list-group">
+                  <li class="list-group-item"><input type="text" placeholder="Search Tag Number" ng-model="search.field"/>
+                  <li class="list-group-item" ng-repeat="field in protocol.message_fields | filter:search:true">
+                    <div class="panel panel-default">
+                      <div class="panel-heading">{{field.name}} - {{field.field}}</div>
+                      <div class="panel-body" ng-show="field.values.length > 0">
+                        <ul class="list-group">
+                          <li class="list-group-item"><input type="text" placeholder="Search Value" ng-model="searchv.name"/></li>
+                          <li class="list-group-item" ng-repeat="value in field.values | filter:searchv">
+                            {{value.name}} - {{value.value}}
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+            </uib-tab>
+        </uib-tabset>
       </div>
     </div>
-    <div class="input-group">
-      <input type="text" class="form-control" ng-model="inputmessage" placeholder="Enter FIX message">
-      <div class="input-group-btn">
-        <button type="button" class="btn btn-default" ng-click="onSend()">Send</button>
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <span class="caret"></span>
-          <span class="sr-only">Toggle Dropdown</span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-right">
-          <li><a href="" clip-copy="inputmessage" ng-click="onCopy()"><i class="glyphicon glyphicon-copy"></i> Copy</a></li>
-          <li><a href="" ng-click="onClean()"><i class="glyphicon glyphicon-remove"></i> Clean</a></li>
-          <li role="separator" class="divider"></li>
-          <li><a href="" ng-click="onAdvanceInput()"><i class="glyphicon glyphicon-th-large"></i> Advanced</a></li>
-        </ul>
+    <div class="col-md-7">
+      <div class="row" ng-show="message.progress_percentage > 0">
+        <span ng-show="message.progress_percentage > 0"><i class="fa fa-exclamation-triangle"></i> Bulking messages will not be displayed here.</span>
+        <div class="progress">
+          <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="{{message.progress_percentage}}" aria-valuemin="0" aria-valuemax="100" style="min-width: 2em; width:{{message.progress_percentage}}%">{{message.progress_percentage}}% ({{message.processed}}/{{message.amount}})</div>
+        </div>
       </div>
-    </div>
-    <hr/>
-    <div id="sessionMessage">
-    <tabset>
-      <tab heading="RAW">
-        <div><button id="btnCleanMessage" type="button" class="btn btn-info" ng-click="onCleanMessage()">CLEAN</button>&nbsp;<button id="btnExport" type="button" class="btn btn-info" ng-click="onExportMessages()">EXPORT</button></div>
-        <table st-table="originalDisplayedCollection" st-safe-src="originalRowCollection" class="table table-striped">
-          <thead>
-            <tr>
-              <th>
-                  <select st-search="'direction'" class="form-control">
-                      <option value=""></option>
-                      <option value="incoming">IN</option>
-                      <option value="outgoing">OUT</option>
-                  </select>
-              </th>
-              <th><input st-search="'message'" placeholder="Filter message by keywords" class="input-sm form-control" type="search"/></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="row in originalDisplayedCollection"  class="{{row.color}}">
-              <td><span class="{{row.directionIcon}}" title="{{row.direction}}"></span></td>
-              <td>{{row.message}}</td>
-              <td><a href="" clip-copy="row.message"><i class="glyphicon glyphicon-copy"></i></a></td>
-            </tr>
-          </tbody>
-        </table>
-      </tab>
-      <tab heading="Formatted">
-        <table st-table="formattedDisplayedCollection" st-safe-src="formattedRowCollection" class="table table-striped">
-          <thead>
-            <tr>
-              <th st-sort="direction">Direction</th>
-              <th st-sort="message">Message</th>
-            </tr>
-            <tr>
-              <th></th>
-              <th><input st-search="'message'" placeholder="" class="input-sm form-control" type="search"/></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="row in formattedDisplayedCollection">
-              <td><span class="{{row.directionIcon}}" title="{{row.direction}}"></span></td>
-              <td>{{row.message}}</td>
-            </tr>
-          </tbody>
-        </table>
-      </tab>
-    </tabset>
+      <div class="row">
+        <div class="container-fluid">
+          <form class="form-inline" role="form" style="text-align: left;">
+            <button id="btnPurge" type="button" class="btn btn-default" ng-click="onClean()" title="Purge Messages" ng-disabled="session_messages.length==0"><i class="fa fa-trash"></i> Purge </button>
+            <button id="btnViewer" type="button" class="btn btn-default" ng-click="onMessageViewer()" title="Message timeline" ng-disabled="session_messages.length==0"><i class="fa fa-bar-chart"></i> Viewer</button>
+          </form>
+        </div>
+      </div>
+      <div class="row" ng-show="session_messages.length > 0">
+        <table st-table="displayedCollection" st-safe-src="session_messages" class="table table-striped table-bordered  table-hover">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th><input st-search placeholder="global search" class="input-sm form-control" type="search"/></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="row in displayedCollection" st-select-row="row" st-select-mode="single">
+                  <td><input id="ckbMessage" ng-model="row.selected" ng-click="onMessageSelected($index, session_messages)" type="checkbox" /></td>
+                  <td>{{row.message_time}}</td>
+                  <td><div class="timeline-badge {{row.direction_bgcolor}}"><i class="{{row.direction_icon}}"  title="{{row.direction_title}}"></i></div></td>
+                  <td><span title="{{row.message}}">{{row.message_display}}</span></td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="4" class="text-center">
+                    <div st-pagination="" st-items-by-page="itemsByPage" st-displayed-pages="50"></div>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+      </div>
     </div>
   </div>
 </div>

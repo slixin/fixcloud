@@ -1,0 +1,53 @@
+<form name="form.sessionForm" ng-submit="submitForm(session)" novalidate>
+
+<div class="modal-header">
+    <h3>FIX Client Session</h3>
+</div>
+<div class="modal-body">
+        <!-- NAME -->
+        <div class="form-group">
+            <label>Session Name</label>
+            <input type="text" name="name" class="form-control" ng-model="session.name" required>
+            <p ng-show="form.sessionForm.name.$invalid && !form.sessionForm.name.$pristine" class="help-block">Name is required.</p>
+        </div>
+
+        <!-- VERSION -->
+        <div class="form-group">
+            <label>Fix Version</label>
+            <input type="text" name="version" class="form-control" ng-model="session.version" ng-maxlength="3" value="4.4" required>
+            <p ng-show="form.sessionForm.version.$invalid && !form.sessionForm.version.$pristine" class="help-block">Version is required.</p>
+        </div>
+
+        <!-- HOST -->
+        <div class="form-group">
+            <label>Host</label>
+            <input type="text" name="host" class="form-control" ng-model="session.host" required>
+            <p ng-show="form.sessionForm.host.$invalid && !form.sessionForm.host.$pristine" class="help-block">Host is required.</p>
+        </div>
+
+        <!-- PORT -->
+        <div class="form-group">
+            <label>Port</label>
+            <input type="text" name="port" class="form-control" ng-model="session.port" required>
+            <p ng-show="form.sessionForm.port.$invalid && !form.sessionForm.port.$pristine" class="help-block">Port is required.</p>
+        </div>
+
+        <!-- SENDER -->
+        <div class="form-group">
+            <label>Sender</label>
+            <input type="text" name="sender" class="form-control" ng-model="session.sender" required>
+            <p ng-show="form.sessionForm.sender.$invalid && !form.sessionForm.sender.$pristine" class="help-block">Sender is required.</p>
+        </div>
+
+        <!-- TARGET -->
+        <div class="form-group">
+            <label>Target</label>
+            <input type="text" name="target" class="form-control" ng-model="session.target" required>
+            <p ng-show="form.sessionForm.target.$invalid && !form.sessionForm.target.$pristine" class="help-block">Target is required.</p>
+        </div>
+</div>
+<div class="modal-footer">
+    <button type="submit" class="btn btn-primary" ng-disabled="form.sessionForm.$invalid">Save</button>
+    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+</div>
+</form>

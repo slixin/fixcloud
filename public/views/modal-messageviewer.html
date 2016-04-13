@@ -1,0 +1,27 @@
+<div class="modal-header">
+    <h3>Message Viewer</h3>
+    <div class="form-group">
+      <label for="excludedtags">Exclude Tags:</label>
+      <input id="exlucdedtags" type="text" class="form-control" ng-model="excluded_tags" placeholder="Tags which will be excluded in viewer." />
+    </div>
+</div>
+<div class="modal-body">
+  <ul class="timeline">
+        <li class="{{event.side}}" ng-repeat="event in events">
+          <div class="timeline-badge {{event.badgeClass}}"><i class="{{event.badgeIconClass}}"></i></div>
+          <div class="timeline-panel">
+            <div class="timeline-heading">
+              <h4 class="timeline-title"><i class="fa fa-clock-o"></i> {{event.time}}</h4>
+              <p><small class="text-danger"> {{event.title}}</small></p>
+            </div>
+            <div class="timeline-body">
+              <p ng-bind-html="event.content"></p>
+            </div>
+          </div>
+        </li>
+    </ul>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-warning" ng-click="close()">Close</button>
+</div>
+

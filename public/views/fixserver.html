@@ -1,0 +1,16 @@
+<section class="client section">
+    <uib-tabset>
+        <uib-tab ng-click="addServer()" ng-show="server_tabs.length < 6">
+            <uib-tab-heading>
+                <span class="glyphicon glyphicon-plus"></span>
+            </uib-tab-heading>
+        </uib-tab>
+        <uib-tab ng-repeat="tab in server_tabs" active=tab.isactive ng-click="onClickTab(tab)">
+            <uib-tab-heading><i class="fa fa-dot-circle-o"></i> <span ng-model="tab.name">{{tab.name}}</span> <a href="" ng-bootbox-confirm="Are you sure you want to delete the server?" ng-bootbox-confirm-action="removeServer($index)" ng-bootbox-confirm-action-cancel=""><span class="glyphicon glyphicon-remove" ng-show="tab.isactive"></span></a></uib-tab-heading>
+            <div ng-show="tab.isactive">
+                <div ng-include="tab.url" ng-init="tab=tab">
+                </div>
+            </div>
+        </uib-tab>
+    </uib-tabset>
+</section>

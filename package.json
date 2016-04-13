@@ -8,9 +8,10 @@
   "description": "IressNode",
   "author": {
     "name": "steve.li",
-    "email": ""
+    "email": "steve.li@iress.com.au"
   },
   "dependencies": {
+    "async": "~1.4.0",
     "body-parser": "~1.8.1",
     "bootstrap": "^3.3.4",
     "connect-flash": "~0.1.1",
@@ -21,13 +22,15 @@
     "express": "~4.9.0",
     "express-session": "~1.11.2",
     "jade": "~1.6.0",
-    "morgan": "~1.3.0",
     "passport": "~0.2.1",
     "passport-facebook": "~2.0.0",
+    "portfinder": "~0.4.0",
     "serve-favicon": "~2.1.3",
     "stylus": "0.42.3",
     "underscore": "~1.8.3",
-    "portfinder": "~0.4.0",
-    "async": "~1.4.0"
+    "is-json":"~2.0.0",
+    "log4js": "~0.6.33",
+    "socket.io": "~1.4.5",
+    "method-override":"~2.3.5"
   }
 }
