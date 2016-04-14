@@ -70,9 +70,9 @@ function load_fix_protocols(){
 // FACEBOOK ================================================================
 // =========================================================================
 passport.use(new FacebookStrategy({
-    clientID: authConfig.facebookAuth.clientID,
-    clientSecret: authConfig.facebookAuth.clientSecret,
-    callbackURL: authConfig.facebookAuth.callbackURL,
+    clientID: process.env.FB_ID,//authConfig.facebookAuth.clientID,
+    clientSecret: process.env.FB_SECRET,//authConfig.facebookAuth.clientSecret,
+    callbackURL: process.env.FB_CALLBACKURL,//authConfig.facebookAuth.callbackURL,
     passReqToCallback: true
 }, function(req, token, refreshToken, profile, done) {
     process.nextTick(function() {
