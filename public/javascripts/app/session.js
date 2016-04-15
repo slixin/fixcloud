@@ -14,6 +14,7 @@ app.controller("ctrlSession",['$scope', '$http', '$timeout', '$interval', 'socke
         $scope.storage_messages.push({ id: $scope.session.id, messages: $scope.session_messages});
     } else {
         $scope.session_messages = $scope.storage_messages.filter(function(o) { return o.id == $scope.session.id})[0].messages;
+        $scope.session_messages.forEach(function(m) { m.isSelected = false});
     }
 
     var timer = null;
@@ -217,7 +218,7 @@ app.controller("ctrlSession",['$scope', '$http', '$timeout', '$interval', 'socke
 
     $scope.onApplyTemplate = function(template) {
         var template_msg = JSON.parse(JSON.stringify(template.value));
-        var filtered_messages = $scope.session_messages.filter(function(m) { return m.selected == true });
+        var filtered_messages = $scope.session_messages.filter(function(m) { return m.isSelected == true });
         if (filtered_messages.length  == 1){
             var target_msg = filtered_messages[0].message;
             Object.keys(template_msg).forEach(function(key) {
@@ -243,13 +244,6 @@ app.controller("ctrlSession",['$scope', '$http', '$timeout', '$interval', 'socke
                 $scope.$apply();
             }
         });
-    }
-
-    $scope.onMessageSelected = function(index, messages) {
-      messages.forEach(function(msg, i) {
-        if (index != i)
-          msg.selected = false;
-      });
     }
 
     $scope.onMessageViewer = function() {

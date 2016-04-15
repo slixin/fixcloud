@@ -41,6 +41,7 @@
         <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/select2.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/prism/1.4.1/prism.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/datejs/1.0/date.min.js"></script>
         <script src="javascripts/ui-bootstrap-tpls-1.3.1.js"></script>
         <script src="javascripts/jsoneditor.js"></script>
         <script src="javascripts/ng-jsoneditor.js"></script>
@@ -52,6 +53,7 @@
         <script src="javascripts/app/session.js"></script>
         <script src="javascripts/app/server.js"></script>
         <script src="javascripts/app/service.js"></script>
+        <script src="javascripts/app/parser.js"></script>
         <script src="javascripts/main.js"></script>
         <script src="javascripts/comm.js"></script>
     </head>
@@ -71,6 +73,7 @@
                             <li class="nav-item" id="tabHome" ><a href='/#/' title="Home"><i class="fa fa-home fa-lg"></i> Home</a></li>
                             <li class="nav-item" id="tabClient" ><a href='/#/fixclient' title="Client"><i class="fa fa-desktop fa-lg"></i> Client</a></li>
                             <li class="nav-item" id="tabServer" ><a href='/#/fixserver' title="Server"><i class="fa fa-server fa-lg"></i> Server</a></li>
+                            <li class="nav-item" id="tabParser" ><a href='/#/parser' title="Parser"><i class="fa fa-server fa-lg"></i> Parser</a></li>
                             <li class="nav-item" id="btnFBSignIn" ng-show="user.id == null">
                                 <a class="btn btn-social-icon btn-facebook" ng-click="fbSignIn()"><i class="fa fa-facebook-official fa-lg"></i> Sign in</a>
                             </li>
@@ -96,46 +99,3 @@
         </footer>
     </body>
 </html>
-    <!-- <body>
-        <div ng-controller="ctrlMain">
-            <nav class="navbar navbar-default navbar-fixed-top" >
-                <div class="container-fluid">
-                    <div class="collapse navbar-collapse" style="float:left;display:inline-block;margin:2px">
-                            <img class='likeordislike' alt="IRESS Test FIX Center" height="45" width="45" src="images/logo.png" title="IRESS Test FIX Center">
-                        </div>
-                        <div class="collapse navbar-collapse" style="float:left;display:inline-block">
-                            <ul class="nav navbar-nav" ng-controller="ctrlNav">
-                                <li ng-class="navClass('home')"><a href='/#/' title="Home"><span class="fa fa-home fa-lg"></span> Home</a></li>
-                                <li id="tabClient" ng-class="navClass('fixclient')"><a href='/#/fixclient' title="Client"><span class="fa fa-desktop fa-lg"></span> Client</a></li>
-                                <li id="tabServer" ng-class="navClass('fixserver')"><a href='/#/fixserver' title="Server"><span class="fa fa-server fa-lg"></span> Server</a></li>
-                            </ul>
-                        </div>
-                        <div class="collapse navbar-collapse" style="float:right;display:inline-block">
-                            <ul class="nav navbar-nav">
-                                <li ng-show="user.id != null">
-                                    <a>Welcome, {{user.displayname}}</a>
-                                </li>
-                                <li id="btnFBSignOut" ng-show="user.id != null">
-                                   <a href="" title="Sign Out" ng-click="fbSignOut()"><i class="fa fa-sign-out  fa-lg"></i> </a>
-                                </li>
-                                <li>&nbsp;
-                                </li>
-                                <li id="btnSaveUser" ng-show="user.id != null && isModified()">
-                                    <a href="" title="Save User" ng-click="saveUser()"><i class="fa fa-floppy-o  fa-lg fa-spin"></i> </a>
-                                </li>
-                                <li id="btnFBSignIn" ng-show="user.id == null">
-                                    <a class="btn btn-social-icon btn-facebook" ng-click="fbSignIn()">
-                                        Sign in <i class="fa fa-facebook-official fa-lg"></i>
-                                    </a>
-                                </li>
-                                <li ng-class="navClass('help')">
-                                    <a href="" title="Help" ng-click="onShowHelper()"><span class="fa fa-question-circle fa-lg"></span> </a>
-                                </li>
-                            </ul>
-                        </div>
-                </div>
-            </nav>
-            <div ng-view class="view_detail"></div>
-        </div>
-    </body>
-</html> -->

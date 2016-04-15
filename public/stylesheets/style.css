@@ -74,3 +74,7 @@ td{
 .form-inline .form-group input {
     width:100px;
 }
+.st-selected {
+    background-color: #17baef !important;
+    color: white !important;
+}

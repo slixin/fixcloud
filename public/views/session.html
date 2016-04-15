@@ -84,13 +84,11 @@
                 <tr>
                   <th></th>
                   <th></th>
-                  <th></th>
                   <th><input st-search placeholder="global search" class="input-sm form-control" type="search"/></th>
                 </tr>
               </thead>
               <tbody>
                 <tr ng-repeat="row in displayedCollection" st-select-row="row" st-select-mode="single">
-                  <td><input id="ckbMessage" ng-model="row.selected" ng-click="onMessageSelected($index, session_messages)" type="checkbox" /></td>
                   <td>{{row.message_time}}</td>
                   <td><div class="timeline-badge {{row.direction_bgcolor}}"><i class="{{row.direction_icon}}"  title="{{row.direction_title}}"></i></div></td>
                   <td><span title="{{row.message}}">{{row.message_display}}</span></td>
