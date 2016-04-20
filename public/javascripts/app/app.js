@@ -24,6 +24,10 @@ app.config(['$routeProvider', function($routeProvider) {
             templateUrl: '/views/fixclient.html',
             controller: 'ctrlFixClient'
         })
+        .when('/parser', {
+            templateUrl: '/views/parser.html',
+            controller: 'ctrlParser'
+        })
         .when('/messageviewer', {
             templateUrl: 'views/messageviewer.html',
             controller: 'ctrlMessageViewer'
