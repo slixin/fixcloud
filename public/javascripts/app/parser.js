@@ -96,9 +96,8 @@ app.controller("ctrlParser",['$scope', '$http', '$filter',function($scope,$http,
                 var tag_num = parseInt(tag_array[0]);
                 var tag_value = tag_array[1].replace('','');
                 var fields = $scope.message_fields.filter(function(o) { return o.field == tag_num.toString()});
-
                 var tag_description = fields.length == 0 ? "" : fields[0].name;
-                var tag_value_description = fields[0].values.length == 0 ? "" : fields[0].values.filter(function(o) { return o.value == tag_value.toString()})[0].name;
+                var tag_value_description = fields.length == 0 ? "" : (fields[0].values.length == 0 ? "" : fields[0].values.filter(function(o) { return o.value == tag_value.toString()}).length > 0 ? fields[0].values.filter(function(o) { return o.value == tag_value.toString()})[0].name : "");
                 tag_detail.push( {
                     tag: tag_num,
                     tag_name: tag_description,
