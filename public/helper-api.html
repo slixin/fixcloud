@@ -1,0 +1,553 @@
+<!doctype html>
+<html ng-app="app" xmlns:ng="http://angularjs.org">
+    <title>FIX Cloud</title>
+    <head>
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.css">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/angular-chart.js/0.9.0/angular-chart.css">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.1.11/css/xeditable.css" />
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.3.2/jquery.textcomplete.css" />
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.css">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/css/select2.min.css">
+        <link rel='stylesheet' href='//fonts.googleapis.com/css?family=Lato:300,400,300italic,400italic'>
+        <link rel='stylesheet' href='//fonts.googleapis.com/css?family=Montserrat:400,700'>
+        <link rel='stylesheet' href='//cdnjs.cloudflare.com/ajax/libs/prism/1.4.1/themes/prism.css'/>
+        <link rel="stylesheet" href="stylesheets/style.css">
+        <link rel="stylesheet" href="stylesheets/styles.css">
+        <link rel="stylesheet" href="stylesheets/jsoneditor.css">
+        <link rel="stylesheet" href="stylesheets/timeline-style.css">
+        <link rel="shortcut icon" type="image/png" href="favicon.ico">
+
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.3/angular-route.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.3/angular-animate.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.3/angular-cookies.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.3/angular-resource.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.5.3/angular-sanitize.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular-local-storage/0.2.7/angular-local-storage.js"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular-chart.js/0.9.0/angular-chart.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular-smart-table/2.1.8/smart-table.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.1.11/js/xeditable.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.3.2/jquery.textcomplete.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/zeroclipboard/2.2.0/ZeroClipboard.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/ng-clip/0.2.6/ng-clip.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.2/js/select2.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/prism/1.4.1/prism.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/datejs/1.0/date.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/moment-range/2.2.0/moment-range.min.js"></script>
+        <script src="javascripts/ui-bootstrap-tpls-1.3.1.js"></script>
+        <script src="javascripts/jsoneditor.js"></script>
+        <script src="javascripts/ng-jsoneditor.js"></script>
+        <script src="javascripts/app/app.js"></script>
+        <script src="javascripts/app/nav.js"></script>
+        <script src="javascripts/app/home.js"></script>
+        <script src="javascripts/app/main.js"></script>
+        <script src="javascripts/app/client.js"></script>
+        <script src="javascripts/app/session.js"></script>
+        <script src="javascripts/app/server.js"></script>
+        <script src="javascripts/app/service.js"></script>
+        <script src="javascripts/app/parser.js"></script>
+        <script src="javascripts/main.js"></script>
+        <script src="javascripts/comm.js"></script>
+    </head>
+    <body data-spy="scroll"  ng-controller="ctrlMain">
+<div class="modal-body">
+  <h1>FIX Cloud API</h1>
+<h2>Client</h2>
+<h3><ins><strong>/client/connect</strong></ins></h3>
+<p><em>Used to build the connection between FIX Client to Fix server.</em></p>
+
+<ul>
+  <li><strong>METHOD: </strong>POST</li>
+  <li><strong>PARAMETERS:</strong>
+  <ul>
+    <li>senderid - Sender ID of Fix Session</li>
+    <li>targetid - Target ID of Fix Session</li>
+    <li>host - FIX Server&nbsp;name /IP</li>
+    <li>port - FIX Server port</li>
+    <li>version - FIX version, 4.2, 4.3, 4.4, 5.0</li>
+    <li>user - optional, used by FIX Cloud UI.</li>
+  </ul>
+  </li>
+  <li><strong>RETURN:</strong>
+  <ul>
+    <li><strong>​</strong>Pass
+    <ul>
+      <li>status - boolean</li>
+      <li>client_id - FIX session ID, i.e. FIXSERVER|8000|4.4-SENDER-TARGET</li>
+      <li>listener_port - only when user parameter is used.</li>
+    </ul>
+    </li>
+    <li>Fail
+    <ul>
+      <li>status - boolean</li>
+      <li>error - string</li>
+    </ul>
+    </li>
+  </ul>
+  </li>
+  <li><strong>EXAMPLE:</strong>
+  <ul>
+    <li>​Request:
+    <ul>
+      <li>/client/connect
+      <ul>
+        <li>senderid=SENDER</li>
+        <li>targetid=TARGET</li>
+        <li>host=192.168.1.1</li>
+        <li>port=8000</li>
+        <li>version=4.4</li>
+      </ul>
+      </li>
+    </ul>
+    </li>
+    <li>Response:
+    <ul>
+      <li>{ status: true, client_id:&nbsp;<span style="line-height: 20.8px;">FIXSERVER|8000|4.4-SENDER-TARGET, listener_port: null }</span></li>
+    </ul>
+    </li>
+  </ul>
+  </li>
+</ul>
+
+<p>&nbsp;</p>
+
+<h3><ins><strong>/client/isconnected</strong></ins></h3>
+
+<p style="line-height: 20.8px;"><em>Used to check whether there is a&nbsp;connection between FIX Client to Fix server.</em></p>
+
+<ul style="line-height: 20.8px;">
+  <li><strong>METHOD:&nbsp;</strong>POST</li>
+  <li><strong>PARAMETERS:</strong>
+  <ul>
+    <li>client - Fix Session ID which return by /client/connect, i.e.&nbsp;<span style="line-height: 20.8px;">FIXSERVER|8000|4.4-SENDER-TARGET</span></li>
+  </ul>
+  </li>
+  <li><strong>RETURN:</strong>
+  <ul>
+    <li>Pass
+    <ul>
+      <li>status - boolean</li>
+    </ul>
+    </li>
+    <li>Fail
+    <ul>
+      <li>status<span style="line-height: 20.8px;">&nbsp;- boolean</span></li>
+      <li>error - string</li>
+    </ul>
+    </li>
+  </ul>
+  </li>
+  <li><strong>EXAMPLE:</strong>
+  <ul>
+    <li>​Request:
+    <ul>
+      <li>​/client/isconnected
+      <ul>
+        <li>​client=<span style="line-height: 20.8px;">FIXSERVER|8000|4.4-SENDER-TARGET</span></li>
+      </ul>
+      </li>
+    </ul>
+    </li>
+    <li>Response:
+    <ul>
+      <li>​{ status: true }</li>
+    </ul>
+    </li>
+  </ul>
+  </li>
+</ul>
+
+<p>&nbsp;</p>
+
+<h3><ins><strong>/client/disconnect</strong></ins></h3>
+
+<p style="line-height: 20.8px;"><em>Used to disconnect the connection&nbsp;between FIX Client to Fix server.</em></p>
+
+<ul style="line-height: 20.8px;">
+  <li><strong>METHOD:&nbsp;</strong>POST</li>
+  <li><strong>PARAMETERS:</strong>
+  <ul>
+    <li>client<span style="line-height: 20.8px;">&nbsp;- Fix Session ID which return by /client/connect, i.e.&nbsp;</span><span style="line-height: 20.8px;">FIXSERVER|8000|4.4-SENDER-TARGET</span></li>
+  </ul>
+  </li>
+  <li><strong>RETURN:</strong>
+  <ul>
+    <li>Pass
+    <ul>
+      <li>status<span style="line-height: 20.8px;">&nbsp;- boolean</span></li>
+    </ul>
+    </li>
+    <li>Fail
+    <ul>
+      <li>status<span style="line-height: 20.8px;">&nbsp;- boolean</span></li>
+      <li>error - string</li>
+    </ul>
+    </li>
+  </ul>
+  </li>
+  <li><strong>EXAMPLE:<strong>​</strong></strong>
+  <ul>
+    <li>Request:
+    <ul>
+      <li>​/client/isconnected
+      <ul>
+        <li>​client=<span style="line-height: 20.8px;">FIXSERVER|8000|4.4-SENDER-TARGET</span></li>
+      </ul>
+      </li>
+    </ul>
+    </li>
+    <li>Response:
+    <ul>
+      <li>​{ status: true }</li>
+    </ul>
+    </li>
+  </ul>
+  </li>
+</ul>
+
+<p>&nbsp;</p>
+
+<h3><ins><strong>/client/send</strong></ins></h3>
+
+<p style="line-height: 20.8px;"><em>Used to send single FIX message</em></p>
+
+<ul style="line-height: 20.8px;">
+  <li><strong>METHOD:&nbsp;</strong>POST</li>
+  <li><strong>PARAMETERS:</strong>
+  <ul>
+    <li>client<span style="line-height: 20.8px;">&nbsp;- Fix Session ID which return by /client/connect, i.e.&nbsp;</span><span style="line-height: 20.8px;">FIXSERVER|8000|4.4-SENDER-TARGET</span></li>
+    <li>message - JSON format FIX message, see detail in Example.</li>
+  </ul>
+  </li>
+  <li><strong>RETURN:</strong>
+  <ul>
+    <li>messages [] - messages details array
+    <ul>
+      <li>key</li>
+      <li>messages []</li>
+    </ul>
+    </li>
+    <li>status<span style="line-height: 20.8px;">&nbsp;- boolean</span></li>
+  </ul>
+  </li>
+  <li><strong>EXAMPLE:</strong>
+  <ul>
+    <li>​Request:
+    <ul>
+      <li>​/client/send
+      <ul>
+        <li>​client=<span style="line-height: 20.8px;">FIXSERVER|8000|4.4-SENDER-TARGET</span></li>
+        <li><span style="line-height: 20.8px;">message</span><span style="line-height: 20.8px;">​</span>
+        <ul>
+          <li>Single message:&nbsp;
+          <ul>
+            <li>{&quot;22&quot;:8,&quot;35&quot;:&quot;D&quot;,&quot;38&quot;:10,&quot;40&quot;:2,&quot;44&quot;:300,&quot;48&quot;:&quot;AAD&quot;,&quot;54&quot;:1,&quot;100&quot;:&quot;ASX&quot;,&quot;207&quot;:&quot;ASX&quot;}</li>
+          </ul>
+          </li>
+          <li>Single message with random value:
+          <ul>
+            <li>{&quot;22&quot;:8,&quot;35&quot;:&quot;D&quot;,&quot;38&quot;:10,&quot;40&quot;:2,&quot;44&quot;:300,&quot;48&quot;:&quot;AAD&quot;,&quot;54&quot;:[1,2],&quot;100&quot;:&quot;ASX&quot;,&quot;207&quot;:&quot;ASX&quot;}</li>
+          </ul>
+          </li>
+          <li>Single message flow:
+          <ul>
+            <li>
+            <p style="margin:0in;font-family:Calibri;font-size:11.0pt"><span lang="en-US">[</span><span lang="zh-CN">{&quot;35&quot;:&quot;D&quot;,&quot;</span><span lang="en-US">22</span><span lang="zh-CN">&quot;:&quot;</span><span lang="en-US">8</span><span lang="zh-CN">&quot;,&quot;38&quot;:&quot;10&quot;,&quot;40&quot;:&quot;2&quot;,&quot;44&quot;:&quot;</span><span lang="en-US">100</span><span lang="zh-CN">&quot;,&quot;48&quot;:&quot;</span><span lang="en-US">BHP</span><span lang="zh-CN">&quot;,&quot;54&quot;:&quot;</span><span lang="en-US">1</span><span lang="zh-CN">&quot;,&quot;55&quot;:&quot;</span><span lang="en-US">BHP</span><span lang="zh-CN">&quot;,&quot;100&quot;:&quot;</span><span lang="en-US">ASX</span><span lang="zh-CN">&quot;</span><span lang="en-US">,&quot;207&quot;:&quot;ASX&quot;</span><span lang="zh-CN">}</span><span lang="en-US">,{</span><span lang="zh-CN">&quot;</span><span lang="en-US">22</span><span lang="zh-CN">&quot;:&quot;</span><span lang="en-US">:22</span><span lang="zh-CN">&quot;,</span><span lang="en-US">&quot;35&quot;:&quot;F&quot;</span><span lang="zh-CN">,&quot;38&quot;:&quot;</span><span lang="en-US">:38</span><span lang="zh-CN">&quot;,&quot;40&quot;:&quot;</span><span lang="en-US">:40</span><span lang="zh-CN">&quot;,</span><span lang="en-US">&quot;41&quot;:&quot;:11&quot;,</span><span lang="zh-CN">&quot;44&quot;:&quot;</span><span lang="en-US">:44</span><span lang="zh-CN">&quot;,&quot;48&quot;:&quot;</span><span lang="en-US">:48</span><span lang="zh-CN">&quot;,&quot;54&quot;:&quot;</span><span lang="en-US">:54</span><span lang="zh-CN">&quot;,&quot;55&quot;:&quot;</span><span lang="en-US">:55</span><span lang="zh-CN">&quot;,&quot;100&quot;:&quot;</span><span lang="en-US">:100</span><span lang="zh-CN">&quot;</span><span lang="en-US">,&quot;207&quot;:&quot;:207&quot;}]</span></p>
+            </li>
+          </ul>
+          </li>
+          <li>
+          <p style="margin:0in;font-family:Calibri;font-size:11.0pt"><span lang="en-US">​Single message with expected:</span></p>
+
+          <ul>
+            <li>
+            <p style="margin:0in;font-family:Calibri;font-size:11.0pt"><span lang="en-US">​</span>{&quot;value&quot;: {&quot;1&quot;:&quot;PERFIOSPLUSACC&quot;,&quot;22&quot;:8,&quot;35&quot;:&quot;D&quot;,&quot;38&quot;:10,&quot;40&quot;:2,&quot;44&quot;:300,&quot;48&quot;:&quot;AAD&quot;,&quot;54&quot;:1,&quot;100&quot;:&quot;ASX&quot;,&quot;207&quot;:&quot;ASX&quot;}, &quot;expected&quot;: {&quot;39&quot;:&quot;0&quot;,&quot;150&quot;:&quot;0&quot;}}</p>
+            </li>
+          </ul>
+          </li>
+        </ul>
+        </li>
+      </ul>
+      </li>
+    </ul>
+    </li>
+    <li>Response:
+    <ul>
+      <li>​{<br />
+      &nbsp; &quot;status&quot;: true,<br />
+      &nbsp; &quot;messages&quot;: [<br />
+      &nbsp; &nbsp; {<br />
+      &nbsp; &nbsp; &nbsp; &quot;key&quot;: &quot;20160505154226987QLBH&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &quot;messages&quot;: [<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; {<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;1&quot;: &quot;PERFIOSPLUSACC&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;8&quot;: &quot;FIX.4.4&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;11&quot;: &quot;20160505154226987QLBH&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;22&quot;: 8,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;34&quot;: 100120,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;35&quot;: &quot;D&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;38&quot;: 10,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;40&quot;: 2,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;44&quot;: 300,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;48&quot;: &quot;AAD&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;49&quot;: &quot;PERFTEST&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;52&quot;: &quot;20160505-05:42:26.987&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;54&quot;: 1,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;56&quot;: &quot;PERFTEST&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;60&quot;: &quot;1462426946987&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;100&quot;: &quot;ASX&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;207&quot;: &quot;ASX&quot;<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; },<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; {<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;1&quot;: &quot;PERFIOSPLUSACC&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;6&quot;: &quot;0.000000&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;8&quot;: &quot;FIX.4.4&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;9&quot;: &quot;309&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;10&quot;: &quot;040&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;11&quot;: &quot;20160505154226987QLBH&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;14&quot;: &quot;0&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;15&quot;: &quot;AUD&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;17&quot;: &quot;783273&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;22&quot;: &quot;8&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;31&quot;: &quot;0.000000&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;32&quot;: &quot;0&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;34&quot;: &quot;200047&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;35&quot;: &quot;8&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;37&quot;: &quot;279134&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;38&quot;: &quot;10&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;39&quot;: &quot;A&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;40&quot;: &quot;2&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;44&quot;: &quot;300&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;48&quot;: &quot;AAD&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;49&quot;: &quot;PERFTEST&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;52&quot;: &quot;20160505-05:42:27.003&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;54&quot;: &quot;1&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;55&quot;: &quot;AAD&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;56&quot;: &quot;PERFTEST&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;59&quot;: &quot;0&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;60&quot;: &quot;20160505-05:42:27.101&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;150&quot;: &quot;A&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;151&quot;: &quot;10&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;198&quot;: &quot;82703763&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;207&quot;: &quot;ASX&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;424&quot;: &quot;10&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;425&quot;: &quot;0&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;426&quot;: &quot;0.000000&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;528&quot;: &quot;A&quot;<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; },<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; {<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;1&quot;: &quot;PERFIOSPLUSACC&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;6&quot;: &quot;0.000000&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;8&quot;: &quot;FIX.4.4&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;9&quot;: &quot;309&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;10&quot;: &quot;015&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;11&quot;: &quot;20160505154226987QLBH&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;14&quot;: &quot;0&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;15&quot;: &quot;AUD&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;17&quot;: &quot;783274&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;22&quot;: &quot;8&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;31&quot;: &quot;0.000000&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;32&quot;: &quot;0&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;34&quot;: &quot;200048&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;35&quot;: &quot;8&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;37&quot;: &quot;279134&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;38&quot;: &quot;10&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;39&quot;: &quot;0&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;40&quot;: &quot;2&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;44&quot;: &quot;300&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;48&quot;: &quot;AAD&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;49&quot;: &quot;PERFTEST&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;52&quot;: &quot;20160505-05:42:27.019&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;54&quot;: &quot;1&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;55&quot;: &quot;AAD&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;56&quot;: &quot;PERFTEST&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;59&quot;: &quot;0&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;60&quot;: &quot;20160505-05:42:27.101&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;150&quot;: &quot;0&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;151&quot;: &quot;10&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;198&quot;: &quot;82703763&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;207&quot;: &quot;ASX&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;424&quot;: &quot;10&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;425&quot;: &quot;0&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;426&quot;: &quot;0.000000&quot;,<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &quot;528&quot;: &quot;A&quot;<br />
+      &nbsp; &nbsp; &nbsp; &nbsp; }<br />
+      &nbsp; &nbsp; &nbsp; ]<br />
+      &nbsp; &nbsp; }<br />
+      &nbsp; ]<br />
+      }</li>
+    </ul>
+    </li>
+  </ul>
+  </li>
+</ul>
+
+<p>&nbsp;</p>
+
+<h3><ins><strong>/client/send/bulk</strong></ins></h3>
+
+<p style="line-height: 20.8px;"><em>Used to bulk sending FIX messages</em></p>
+
+<ul style="line-height: 20.8px;">
+  <li><strong>METHOD:&nbsp;</strong>POST</li>
+  <li><strong>PARAMETERS:</strong>
+  <ul>
+    <li>client<span style="line-height: 20.8px;">&nbsp;- Fix Session ID which return by /client/connect, i.e.&nbsp;</span><span style="line-height: 20.8px;">FIXSERVER|8000|4.4-SENDER-TARGET</span></li>
+    <li>message<span style="line-height: 20.8px;">&nbsp;- JSON format FIX message, see detail in Example.</span></li>
+    <li>amount - Total amount for bulk sending, i.e. 3000</li>
+    <li>tps - transaction per seconds for bulk sending, i.e. 100</li>
+    <li>reference_bulk_id - When the bulk sending is based on previous bulk sending, refer the previous bulk_id</li>
+  </ul>
+  </li>
+  <li><strong>RETURN:</strong>
+  <ul>
+    <li>status<span style="line-height: 20.8px;">&nbsp;- boolean</span></li>
+    <li>id - Bulk execution ID, it is a GUID number.</li>
+  </ul>
+  </li>
+  <li><strong>EXAMPLE:</strong></li>
+</ul>
+
+<p>&nbsp;</p>
+
+<h3><ins><strong>/client/send/bulk/result</strong></ins></h3>
+
+<p style="line-height: 20.8px;"><em>Used to get the bulk sending result.</em></p>
+
+<ul style="line-height: 20.8px;">
+  <li><strong>METHOD:&nbsp;</strong>POST</li>
+  <li><strong>PARAMETERS:</strong>
+  <ul>
+    <li>client<span style="line-height: 20.8px;">&nbsp;- Fix Session ID which return by /client/connect, i.e.&nbsp;</span><span style="line-height: 20.8px;">FIXSERVER|8000|4.4-SENDER-TARGET</span></li>
+    <li>id<span style="line-height: 20.8px;">&nbsp;- Bulk execution ID, it is a GUID number.</span></li>
+    <li>detail - boolean, whether to show details of Bulk sending.</li>
+  </ul>
+  </li>
+  <li><strong>RETURN:</strong>
+  <ul>
+    <li>detail is True
+    <ul>
+      <li>status<span style="line-height: 20.8px;">&nbsp;- boolean</span></li>
+      <li>count - Total count for orders</li>
+      <li>orders[] - return orders array
+      <ul>
+        <li>order_initial_id</li>
+        <li>order_status</li>
+        <li>order_messages[]
+        <ul>
+          <li>key</li>
+          <li>messages[]</li>
+        </ul>
+        </li>
+      </ul>
+      </li>
+    </ul>
+    </li>
+    <li>detail is False
+    <ul>
+      <li>status<span style="line-height: 20.8px;">&nbsp;- boolean</span></li>
+      <li>count<span style="line-height: 20.8px;">&nbsp;- Total count for sending messages</span></li>
+    </ul>
+    </li>
+  </ul>
+  </li>
+  <li><strong>EXAMPLE:</strong></li>
+</ul>
+
+<p>&nbsp;</p>
+
+<h3><ins><strong>/client/send/bulk/result/detail</strong></ins></h3>
+
+<p style="line-height: 20.8px;"><em>Used to get the bulk sending result by order ID</em></p>
+
+<ul style="line-height: 20.8px;">
+  <li><strong>METHOD:&nbsp;</strong>POST</li>
+  <li><strong>PARAMETERS:</strong>
+  <ul>
+    <li>client<span style="line-height: 20.8px;">&nbsp;- Fix Session ID which return by /client/connect, i.e.&nbsp;</span><span style="line-height: 20.8px;">FIXSERVER|8000|4.4-SENDER-TARGET</span></li>
+    <li>bulk_id<span style="line-height: 20.8px;">&nbsp;- Bulk execution ID, it is a GUID number.</span></li>
+    <li>order_id<span style="line-height: 20.8px;">&nbsp;- order ID for the order in the bulk execution.</span></li>
+  </ul>
+  </li>
+  <li><strong>RETURN:</strong>
+  <ul>
+    <li>Pass:
+    <ul>
+      <li>status<span style="line-height: 20.8px;">&nbsp;- boolean</span></li>
+      <li>order - specific order return
+      <ul>
+        <li>order_initial_id</li>
+        <li>order_status</li>
+        <li>order_messages[]
+        <ul>
+          <li>key</li>
+          <li>messages[]</li>
+        </ul>
+        </li>
+      </ul>
+      </li>
+    </ul>
+    </li>
+    <li>Fail:
+    <ul>
+      <li>status<span style="line-height: 20.8px;">&nbsp;- boolean</span></li>
+      <li>error<span style="line-height: 20.8px;">&nbsp;- string</span></li>
+    </ul>
+    </li>
+  </ul>
+  </li>
+  <li><strong>EXAMPLE:</strong></li>
+</ul>
+
+<p>&nbsp;</p>
+
+<h3><ins><strong>/client/send/bulk/stop</strong></ins></h3>
+
+<p style="line-height: 20.8px;"><em>Used to abort the bulk sending FIX messages</em></p>
+
+<ul style="line-height: 20.8px;">
+  <li><strong>METHOD:&nbsp;</strong>POST</li>
+  <li><strong>PARAMETERS:</strong>
+  <ul>
+    <li>client<span style="line-height: 20.8px;">&nbsp;- Fix Session ID which return by /client/connect, i.e.&nbsp;</span><span style="line-height: 20.8px;">FIXSERVER|8000|4.4-SENDER-TARGET</span></li>
+    <li>id -&nbsp;<span style="line-height: 20.8px;">&nbsp;- Bulk execution ID, it is a GUID number.</span></li>
+  </ul>
+  </li>
+  <li><strong>RETURN:</strong>
+  <ul>
+    <li>Pass:
+    <ul>
+      <li>status<span style="line-height: 20.8px;">&nbsp;- boolean</span></li>
+    </ul>
+    </li>
+    <li>Fail
+    <ul>
+      <li>status<span style="line-height: 20.8px;">&nbsp;- boolean</span></li>
+      <li>error - string</li>
+    </ul>
+    </li>
+  </ul>
+  </li>
+  <li><strong>EXAMPLE:</strong></li>
+</ul>
+
+<h2>&nbsp;</h2>
+
+<h2>SERVER</h2>
+
+<p>Coming soon...</p>
+
+</div>
+</body>
+</html>
+

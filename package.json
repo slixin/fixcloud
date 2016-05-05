@@ -1,11 +1,11 @@
 {
-  "name": "FIXCENTRE",
+  "name": "FIXCLOUD",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
   },
-  "description": "FIX CENTRE",
+  "description": "FIX CLOUD",
   "author": {
     "name": "steve.li",
     "email": "steve.li.xin@gmail.com"
