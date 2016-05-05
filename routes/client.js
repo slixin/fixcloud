@@ -20,7 +20,15 @@ var logger = log4js.getLogger('client');
 logger.setLevel('ERROR');
 //################## LOG SETTING ######################
 
-router.post('/connect', ensureAuthenticated, function(req, res) {
+function ensureAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) { return next(); }
+    res.status(404);
+    res.send("No authentication");
+}
+
+router.use(ensureAuthenticated);
+
+router.post('/connect', function(req, res) {
     var sendercompid = req.body.senderid;
     var targetcompid = req.body.targetid;
     var host = req.body.host;
@@ -98,7 +106,7 @@ router.post('/connect', ensureAuthenticated, function(req, res) {
     }
 });
 
-router.post('/isconnected', ensureAuthenticated, function(req, res) {
+router.post('/isconnected', function(req, res) {
     var client_id = req.body.client;
     if (global.clients.get(client_id) == undefined){
         util.request_error(res, 'Client cannot be found');
@@ -111,7 +119,7 @@ router.post('/isconnected', ensureAuthenticated, function(req, res) {
     }
 });
 
-router.post('/disconnect', ensureAuthenticated, function(req, res) {
+router.post('/disconnect', function(req, res) {
     var client_id = req.body.client;
     remove_client(client_id, function(session){
         session.sendLogoff();
@@ -119,7 +127,7 @@ router.post('/disconnect', ensureAuthenticated, function(req, res) {
     });
 });
 
-router.post('/send', ensureAuthenticated, function(req, res) {
+router.post('/send', function(req, res) {
     var client_id = req.body.client;
     var message = req.body.message;
 
@@ -152,7 +160,7 @@ router.post('/send', ensureAuthenticated, function(req, res) {
     });
 });
 
-router.post('/send/bulk', ensureAuthenticated, function(req, res) {
+router.post('/send/bulk', function(req, res) {
     var client_id = req.body.client;
     var message = req.body.message;
     var bulk_amount = req.body.amount == undefined ? 1 : req.body.amount;
@@ -240,7 +248,7 @@ router.post('/send/bulk', ensureAuthenticated, function(req, res) {
     });
 });
 
-router.post('/send/bulk/result', ensureAuthenticated, function(req, res) {
+router.post('/send/bulk/result', function(req, res) {
     var client_id = req.body.client;
     var detail = req.body.detail == undefined ? false : req.body.detail;
 
@@ -269,7 +277,7 @@ router.post('/send/bulk/result', ensureAuthenticated, function(req, res) {
     });
 });
 
-router.post('/send/bulk/stop', ensureAuthenticated, function(req, res) {
+router.post('/send/bulk/stop', function(req, res) {
     var client_id = req.body.client;
 
     var client = global.clients.get(client_id);
@@ -475,12 +483,6 @@ function update_asterisk_in_message(message, fixobj){
     }
 
     return message;
-}
-
-function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) { return next(); }
-    res.status(404);
-    res.send("No authentication");
 }
 
 module.exports = router;
