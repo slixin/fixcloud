@@ -63,34 +63,6 @@ function FIXClient(fixVersion, senderCompID, targetCompID, options) {
         session.sendMsg(msg);
     }
 
-    this.sendMsgCallback = function(message, callback) {
-        var oriClOrdId = message[11];
-        session.on('msg', function(msg) {
-            if (msg[11] == oriClOrdId)
-            {
-                callback(msg);
-            }
-        });
-        session.sendMsg(message);
-    }
-
-    this.sendMsgRound = function(msg, tracktag, callback) {
-        var track_tag_num = msg[tracktag];
-        session.on('msg', function(msg) {
-            var result = false;
-            if (msg[tracktag] == track_tag_num)
-            {
-              if (msg[35] == 3 || msg[35] == 9 || msg[35] == 'AG' || msg[35] == 'j' || msg['39'] == '8')
-                result = false;
-              else
-                result = true;
-              callback(msg, result);
-            }
-        });
-
-        session.sendMsg(msg);
-    }
-
     //[PUBLIC] Sends logon FIX json to counter party
     this.sendLogon = function() {
         session.sendLogon();

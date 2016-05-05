@@ -1,9 +1,5 @@
 ﻿var app = angular.module('app', ['ngRoute', 'ngAnimate', 'ui.bootstrap', 'xeditable', 'ngClipboard', 'smart-table', 'LocalStorageModule','ng.jsoneditor','ngSanitize']);
 
-app.config(['ngClipProvider', function(ngClipProvider) {
-    ngClipProvider.setPath("//cdnjs.cloudflare.com/ajax/libs/zeroclipboard/2.1.6/ZeroClipboard.swf");
-}]);
-
 app.config(function (localStorageServiceProvider) {
   localStorageServiceProvider
     .setPrefix('fixcenter')
@@ -56,7 +52,7 @@ app.factory('socket', function() {
             var msg = {
                         direction: data.direction,
                         direction_title: data.direction == "0" ? "Incoming" : "Outgoing",
-                        direction_bgcolor: data.direction == "0" ? 'warning' : 'info',
+                        direction_bgcolor: data.direction == "0" ? 'danger' : 'success',
                         direction_icon: data.direction == "0" ? "fa fa-cloud-download" : "fa fa-cloud-upload",
                         message_display: json2array(data.message).join(" "),
                         message: data.message,

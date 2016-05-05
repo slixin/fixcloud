@@ -21,7 +21,7 @@ function FIXServer(options) {
   var servers = {};
   var server = net.createServer(function(socket) {
     //connected
-    var frameDecoder = new FixFrameDecoder(true);
+    var frameDecoder = new FixFrameDecoder(false);
     var fixSession = null;
     var perserverself = this;
     var serverid = null;

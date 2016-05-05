@@ -102,7 +102,6 @@ function FIXSession(fixVersion, senderCompID, targetCompID, opt) {
     //[PUBLIC] Sends FIX json to counter party
     this.sendMsg = function(msg) {
         var fix = _.clone(msg);
-
         self.options.timeOfLastOutgoing = new Date().getTime();
         var seqn = self.options.outgoingSeqNum++;
         var prefil = {
@@ -117,7 +116,6 @@ function FIXSession(fixVersion, senderCompID, targetCompID, opt) {
             timeOfLastOutgoing: self.timeOfLastOutgoing,
             outgoingSeqNum: self.outgoingSeqNum
         });
-
         self.emit('outmsg', prefil);
     }
 
@@ -283,7 +281,6 @@ function FIXSession(fixVersion, senderCompID, targetCompID, opt) {
             self.sendError("WARN", errorMsg);
             return;
         }
-
 
         var msgType = fix['35'];
 

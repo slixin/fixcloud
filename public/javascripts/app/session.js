@@ -106,8 +106,7 @@ app.controller("ctrlSession",['$scope', '$http', '$timeout', '$interval', 'socke
         if (newvalue >= 100) {
             $interval.cancel($scope.message.progress_timer);
             bootbox.alert('Bulking completed.', function() {
-                $scope.enable_message_display = true;
-                $timeout(function() { $scope.message.progress_percentage = 0;}, 2000);
+                $timeout(function() { $scope.enable_message_display = true; $scope.message.progress_percentage = 0;}, 2000);
             });
         }
     }, true);
@@ -144,7 +143,8 @@ app.controller("ctrlSession",['$scope', '$http', '$timeout', '$interval', 'socke
             bootbox.confirm("Are you going to stop?", function(result) {
                 if (result){
                     $http.post('/client/send/bulk/stop', {
-                        "client": $scope.session.client_id
+                        "client": $scope.session.client_id,
+                        "id": $scope.session.bulk_id
                     }).then(function(resp) {
                         $interval.cancel($scope.message.progress_timer);
                         bootbox.alert('Bulking stopped.', function() {
@@ -410,14 +410,7 @@ app.controller("ctrlSession",['$scope', '$http', '$timeout', '$interval', 'socke
             "client": $scope.session.client_id,
             "message": message
         }).then(function(resp) {
-            if (!resp.data.status)
-            {
-                bootbox.alert("Error:"+resp.data.error, function() { return; });
-            }
-            else
-            {
-               bootbox.alert("Send successfully.", function() { return; });
-            }
+            bootbox.alert("Send successfully.", function() { return; });
         }, function(err) {
             console.error('ERR', err);
         });
@@ -437,24 +430,21 @@ app.controller("ctrlSession",['$scope', '$http', '$timeout', '$interval', 'socke
                 });
             } else {
                 $scope.message.progress_percentage = 1;
+                $scope.session.bulk_id = resp.data.id;
+                console.log($scope.session.bulk_id);
                 $timeout(function() {
                     $scope.message.progress_timer = $interval(function() {
-                        get_bulk_result(false, function(result){
-                            if (result.status){
-                                if (result.count == 0){
-                                    $interval.cancel($scope.message.progress_timer);
-                                    bootbox.alert('Bulking not started.', function() { return; });
-                                }
+                            get_bulk_result(false, function(result){
                                 var processed_count = result.count;
                                 var processed_percentage = Math.round(100*processed_count / $scope.message.amount, 2);
                                 $scope.message.progress_percentage = processed_percentage;
                                 $scope.message.processed = processed_count;
-                            } else {
-                                $interval.cancel($scope.message.progress_timer);
-                                bootbox.alert('Bulking not started.', function() { return; });
-                            }
-                        });
-                    }, 1000);
+                                if (result.count == 0) {
+                                    $interval.cancel($scope.message.progress_timer);
+                                    bootbox.alert('Bulking not started.', function() { return; });
+                                }
+                            });
+                        }, 1000);
                 }, 1000);
             }
         }, function(err) {
@@ -467,12 +457,10 @@ app.controller("ctrlSession",['$scope', '$http', '$timeout', '$interval', 'socke
     var get_bulk_result = function(showdetail, callback){
         $http.post('/client/send/bulk/result', {
                 "client": $scope.session.client_id,
+                "id": $scope.session.bulk_id,
                 "detail": showdetail
         }).then(function(resp) {
-            if (resp.data.status)
-            {
-                callback(resp.data);
-            }
+            callback(resp.data);
         }, function(err) {
             if (err) console.log(err);
         });
@@ -570,14 +558,18 @@ app.controller('MessageViewerModalCtrl', function ModalInstanceCtrl ($scope, $ui
         $scope.events = [];
         messages.forEach(function(m) {
             var msgobj = m.message;
-            var title = null;
+            var msg_type = null;
+            var title = "";
+
+            if ('11' in msgobj)
+                title = msgobj[11];
 
             var field35 = protocol.message_fields.filter(function(c) { return c.field == 35 })[0];
             var tag35 = field35.values.filter(function(c) { return c.value == msgobj[35] })[0];
             if (tag35 != undefined) {
-                title = tag35.name;
+                msg_type = tag35.name;
             } else {
-                title = "35:" + msgobj[35]
+                msg_type = "35:" + msgobj[35]
             }
 
             var content = null;
@@ -587,10 +579,6 @@ app.controller('MessageViewerModalCtrl', function ModalInstanceCtrl ($scope, $ui
                     if (ex_tags != undefined) {
                         if ($.inArray(key, ex_tags) < 0) {
                             content = (content == undefined ? "" : content) + generate_content(msgobj, key);
-                            console.log(key);
-                            console.log(ex_tags);
-                            console.log($.inArray(key, ex_tags));
-                            console.log(content);
                         }
                     } else {
                         content = (content == undefined ? "" : content) + generate_content(msgobj, key);
@@ -603,6 +591,7 @@ app.controller('MessageViewerModalCtrl', function ModalInstanceCtrl ($scope, $ui
                 badgeIconClass: m.direction == 0 ? "fa fa-cloud-download" : "fa fa-cloud-upload",
                 side: m.direction == 0 ? "" : "timeline-inverted",
                 title: title,
+                msg_type: msg_type,
                 time: m.message_time,
                 content: content,
             })

@@ -4,27 +4,6 @@ app.controller("ctrlParser",['$scope', '$http', '$filter',function($scope,$http,
     $scope.fix_versions = [];
     $scope.selected_message = null;
 
-    $scope.$watch('inputText', function(newvalue, oldvalue) {
-        if (newvalue != oldvalue && newvalue != undefined)
-        {
-            if (newvalue.length > 100000){
-                bootbox.alert('Log is too huge, please make it small.', function() { });
-            } else {
-                $scope.messages = [];
-                parse_input_text(newvalue);
-            }
-        }
-    }, true);
-
-    $scope.$watch('messages', function(row) {
-        row.filter(function(r) {
-            if (r.isSelected) {
-                $scope.selected_message = r;
-            }
-        });
-        row.sort(function(a,b) {return a.time - b.time });
-    }, true);
-
     $scope.$watch('fix_versions.value', function(newvalue, oldvalue) {
         if (newvalue != undefined){
             get_message_types(newvalue.value, function(types) {
@@ -37,10 +16,21 @@ app.controller("ctrlParser",['$scope', '$http', '$filter',function($scope,$http,
         }
     }, true);
 
+    $scope.onAnalysis = function() {
+        if ($scope.inputText.length > 0){
+            $scope.messages = [];
+            parse_input_text($scope.inputText.trim());
+        }
+    }
+
+    $scope.onSelect = function(row) {
+        $scope.selected_message = row;
+    }
+
     var parse_input_text = function(text) {
         var SOHCHAR = String.fromCharCode(1);
         var fix_pattern = /\d{1,4}=[^\s\=]+/g;
-        var lines = $('textarea').val().split('\n');
+        var lines = text.split('\n'); //$('textarea').val().split('\n');
         lines.forEach(function(line) {
             var message = {
                 time : null,
@@ -51,26 +41,13 @@ app.controller("ctrlParser",['$scope', '$http', '$filter',function($scope,$http,
             }
             var fix_line = line.match(fix_pattern);
             if (fix_line != undefined){
-                get_fix_value(60, fix_line, function(value) {
-                    if (value.indexOf(":") > 0) {
-                        var date = value.split("-")[0];
-                        var time = value.split("-")[1];
-                        var dt = new Date(date.substring(0,4),
-                            date.substring(4,2),
-                            date.substring(6,2),
-                            time.split(":")[0],
-                            time.split(":")[1],
-                            time.split(":")[2].split(".")[0],
-                            time.split(":")[2].split(".")[1]);
-                        message.time = dt;
-                    } else {
-                        message.time = new Date(parseFloat(value));
-                    }
+                get_fix_value(52, fix_line, function(value) {
+                    message.time = value;
                 });
                 get_fix_value(49, fix_line, function(value) {
                     message.sender = value;
                 });
-                get_fix_value(49, fix_line, function(value) {
+                get_fix_value(56, fix_line, function(value) {
                     message.target = value;
                 });
                 get_fix_value(35, fix_line, function(value) {

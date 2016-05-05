@@ -1,14 +1,14 @@
 {
-  "name": "IressNode",
+  "name": "FIXCENTRE",
   "version": "0.0.0",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
   },
-  "description": "IressNode",
+  "description": "FIX CENTRE",
   "author": {
     "name": "steve.li",
-    "email": "steve.li@iress.com.au"
+    "email": "steve.li.xin@gmail.com"
   },
   "dependencies": {
     "async": "~1.4.0",
@@ -31,6 +31,7 @@
     "is-json":"~2.0.0",
     "log4js": "~0.6.33",
     "socket.io": "~1.4.5",
-    "method-override":"~2.3.5"
+    "method-override":"~2.3.5",
+    "wait-until": "~0.0.2"
   }
 }

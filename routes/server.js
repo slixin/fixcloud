@@ -17,7 +17,7 @@ var getFreePort = function(base, callback){
 var getReservedPortList = function(){
     var portList = [];
 
-    global.userSettings.forEach(function (value, key) {
+    global.servers.forEach(function (value, key) {
         if (value != undefined)
         {
             var userservers = value.settings.servers;
@@ -34,7 +34,7 @@ var getReservedPortList = function(){
     return portList;
 }
 
-var isReservedPort = function(portList, port){
+var is_port_occupied = function(portList, port){
     var reservedports = portList.filter(function(p) {
         return p == port;
     });
@@ -54,38 +54,37 @@ var isPortInUse = function(port){
     });
 }
 
-router.get('/port/reserve', function(req, res){
-    var isReserved = false;
-    var port = 20000;
+// router.get('/port/new', function(req, res){
+//     var isReserved = false;
+//     var port = 20000;
 
-    while(isReservedPort(getReservedPortList(), port) || isPortInUse(port))
-    {
-        console.log(port);
-        port = port +1;
-    }
+//     while(isReservedPort(getReservedPortList(), port) || isPortInUse(port))
+//     {
+//         port = port +1;
+//     }
 
-    res.send({
-        status:true,
-        port: port
-    });
-});
+//     res.send({
+//         status:true,
+//         port: port
+//     });
+// });
 
-router.post('/port/inuse', function(req, res){
-    var expect_port = req.body.port;
+// router.post('/port/isoccupied', function(req, res){
+//     var expect_port = req.body.port;
 
-    if (isReservedPort(getReservedPortList(), expect_port) || isPortInUse(expect_port) )
-    {
-        res.send({
-            status: true
-        });
-    }
-    else
-    {
-        res.send({
-            status: false
-        });
-    }
-});
+//     if (isReservedPort(getReservedPortList(), expect_port) || isPortInUse(expect_port) )
+//     {
+//         res.send({
+//             status: true
+//         });
+//     }
+//     else
+//     {
+//         res.send({
+//             status: false
+//         });
+//     }
+// });
 
 router.post('/online', function(req, res) {
     var server_id = req.body.server_id;
@@ -123,38 +122,38 @@ router.post('/online', function(req, res) {
     }
 
     create(server_port, function(server){
-        global.webSocketServer.once('connection', function(ws) {
-            server.on('msg', function(id, msg) {
-                if (msg['35'] != '0' && msg['35'] != '1' && msg['35'] != 'A' & msg['35'] !='5')
-                {
-                    var now = new Date();
-                    var utc_now = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds(), now.getUTCMilliseconds());
-                    var message = {
-                        server_id: server_id,
-                        direction: "incoming",
-                        message: msg,
-                        message_time: utc_now.Format('yyyy-MM-dd hh:mm:ss S')
-                    };
-                    global.webSocketServer.broadcast(JSON.stringify(message));
-                }
-            });
-            server.on('outmsg', function(id, msg) {
-                if (msg['35'] != '0' && msg['35'] != '1' && msg['35'] != '5' )
-                {
-                    var now = new Date();
-                    var utc_now = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds(), now.getUTCMilliseconds());
-                    var message = {
-                        server_id: server_id,
-                        direction: "outgoing",
-                        message: msg,
-                        message_time: utc_now.Format('yyyy-MM-dd hh:mm:ss S')
-                    };
-                    global.webSocketServer.broadcast(JSON.stringify(message));
-                }
-            });
+        // global.webSocketServer.once('connection', function(ws) {
+        //     server.on('msg', function(id, msg) {
+        //         // if (msg['35'] != '0' && msg['35'] != '1' && msg['35'] != 'A' & msg['35'] !='5')
+        //         // {
+        //         //     var now = new Date();
+        //         //     var utc_now = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds(), now.getUTCMilliseconds());
+        //         //     var message = {
+        //         //         server_id: server_id,
+        //         //         direction: "incoming",
+        //         //         message: msg,
+        //         //         message_time: utc_now.Format('yyyy-MM-dd hh:mm:ss S')
+        //         //     };
+        //         //     global.webSocketServer.broadcast(JSON.stringify(message));
+        //         // }
+        //     });
+        //     server.on('outmsg', function(id, msg) {
+        //         // if (msg['35'] != '0' && msg['35'] != '1' && msg['35'] != '5' )
+        //         // {
+        //         //     var now = new Date();
+        //         //     var utc_now = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),  now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds(), now.getUTCMilliseconds());
+        //         //     var message = {
+        //         //         server_id: server_id,
+        //         //         direction: "outgoing",
+        //         //         message: msg,
+        //         //         message_time: utc_now.Format('yyyy-MM-dd hh:mm:ss S')
+        //         //     };
+        //         //     global.webSocketServer.broadcast(JSON.stringify(message));
+        //         // }
+        //     });
 
-            global.webSocketServer.on('close', function() { console.log("web socket closed.") });
-        });
+        //     // global.webSocketServer.on('close', function() { console.log("web socket closed.") });
+        // });
         res.send({
             status: true
         });

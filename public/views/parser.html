@@ -1,13 +1,14 @@
 <section class="client section">
     <div class="container-fluid">
-        <div class="form-group">
+        <div class="form-inline" role="form">
             <label for="selVersion">FIX Version</label>
             <select id="selVersion" class="form-control" ng-model="fix_versions.value" ng-options="v.name for v in fix_versions.values track by v.name">
             </select>
+            <button id="btnAnalysis" type="button" class="btn btn-success" ng-click="onAnalysis()" ng-disabled="inputText.length == 0" title="Analysis"><i class="fa fa-eye"></i> Analysis</button>
         </div>
+        <br />
         <div class="form-group">
-            <label for="txtarea">Paste your text below</label>
-            <textarea ng-disabled="fix_versions.value == null" id="txtarea" ng-model="inputText" style="min-width: 100%" rows="8"></textarea>
+            <textarea ng-disabled="fix_versions.value == null" id="txtarea" ng-model="inputText" style="min-width: 100%" rows="8" placeholder="Paste your text below"></textarea>
         </div>
         <div class="row">
             <div class="col-md-7">
@@ -23,8 +24,8 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr ng-repeat="row in displayedCollection" st-select-row="row" st-select-mode="single">
-                      <td>{{row.time | date:'yyyy-MM-dd HH:mm:ss.sss'}}</td>
+                    <tr ng-repeat="row in displayedCollection" st-select-row="row" st-select-mode="single" ng-click="onSelect(row)">
+                      <td>{{row.time}}</td>
                       <td>{{row.sender}}</td>
                       <td>{{row.target}}</td>
                       <td>{{row.type}}</td>

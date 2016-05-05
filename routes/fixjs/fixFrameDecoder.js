@@ -67,7 +67,6 @@ function FixFrameDecoder(isnewversion) {
       }
 
       var msgLength = bodyLength + idxOfEndOfTag9 + SIZEOFTAG10;
-
       //If we don't have enough data for the whole message, wait for more data
       if (self.buffer.length < msgLength) {
         return;
@@ -82,7 +81,6 @@ function FixFrameDecoder(isnewversion) {
         self.buffer = remainingBuffer;
       }
       //====================================Step 2: Validate message====================================
-
       var calculatedChecksum = fixutil.checksum(msg.substr(0, msg.length - 7));
       var extractedChecksum = msg.substr(msg.length - 4, 3);
 

@@ -1,5 +1,5 @@
 ﻿#!/usr/bin/env node
-var debug = require('debug')('IressNode');
+var debug = require('debug')('FIXCENTRE');
 var app = require('../app');
 
 app.set('port', process.env.PORT || 80);
