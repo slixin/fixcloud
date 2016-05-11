@@ -222,7 +222,7 @@ app.controller("ctrlSession",['$scope', '$http', '$timeout', '$interval', 'socke
         if (filtered_messages.length  == 1){
             var target_msg = filtered_messages[0].message;
             Object.keys(template_msg).forEach(function(key) {
-                if (template_msg[key].startsWith(":")) {
+                if (template_msg[key].indexOf(":") === 0) {
                     var target_msg_key = template_msg[key].replace(":","");
                     template_msg[key] = target_msg[target_msg_key];
                 } else if (key != 35) {

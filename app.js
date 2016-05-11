@@ -4,7 +4,7 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var dict = require("dict");
+var dict = require('dict');
 var passport = require("passport");
 var FacebookStrategy = require('passport-facebook').Strategy;
 var methodOverride = require('method-override');
@@ -41,10 +41,10 @@ app.use('/server', server);
 app.use('/auth', auth);
 
 // ######### Global Variable ######
-global.clients = new dict();
-global.servers = new dict();
-global.users = new dict();
-global.protocols = new dict();
+global.clients = dict();
+global.servers = dict();
+global.users = dict();
+global.protocols = dict();
 global.rootpath = __dirname;
 
 load_fix_protocols();

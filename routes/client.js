@@ -5,10 +5,12 @@ var fs = require('fs');
 var FIXClient = require('./fixjs/fixClient.js');
 var _ = require('underscore');
 var async = require('async');
-var dict = require("dict");
+var dict = require('dict');
 var isJSON = require('is-json');
 var log4js = require('log4js');
 var waitUntil = require('wait-until');
+var now = require("performance-now")
+
 
 //################## LOG SETTING ######################
 log4js.configure({
@@ -39,19 +41,34 @@ router.post('/connect', function(req, res) {
 
     var logonTimer = setTimeout(function() { res.send({ status: false, error: 'Logon time out' }); }, 5000);
 
-    var save_message = function(client_id,msg) {
+    var build_message_index = function(client_id, key, message, message_guid) {
+        var key_value = message[key];
+
+        // The Index is exists
+        if (global.clients.get(client_id).index.has(key)) {
+            var index_dict = global.clients.get(client_id).index.get(key);
+            if (index_dict.has(key_value)) {
+                index_dict.get(key_value).push(message_guid);
+            } else {
+                var message_guid_array = [];
+                message_guid_array.push(message_guid);
+                index_dict.set(key_value, message_guid_array)
+            }
+        } else { // It is a new Index
+            var index_dict = new dict();
+            var message_guid_array = [];
+            message_guid_array.push(message_guid);
+            index_dict.set(key_value, message_guid_array);
+            global.clients.get(client_id).index.set(key, index_dict);
+        }
+    }
+
+    var save_message = function(client_id, message) {
         if (global.clients.get(client_id) != undefined){
-            if ('11' in msg) {
-                if (global.clients.get(client_id).messages.has(msg[11])) {
-                    var msglist = global.clients.get(client_id).messages.get(msg[11]);
-                    msglist.push(msg);
-                    global.clients.get(client_id).messages.set(msg[11], msglist);
-                } else {
-                    var msglist = [];
-                    msglist.push(msg);
-                    global.clients.get(client_id).messages.set(msg[11], msglist);
-                }
-            };
+            var message_guid = util.guid();
+            global.clients.get(client_id).messages.set(message_guid, message);
+            if ('11' in message) { build_message_index(client_id, '11', message, message_guid); };
+            if ('198' in message) { build_message_index(client_id, '198', message, message_guid); };
         }
     };
 
@@ -76,17 +93,16 @@ router.post('/connect', function(req, res) {
                         clearTimeout(logonTimer);
                         global.clients.set(client_id, {
                             session: session,
-                            messages: new dict(),
-                            bulk: new dict()
+                            messages: dict(),
+                            index: dict(),
+                            bulk: dict()
                         });
                         res.send({ status: true, client_id: client_id, listener_port: listen_port });
                     });
                     session.on('msg', function(msg) {
                         if (msg[35] != '0' && msg[35] != '1') {
                             if (msg[35] == '5'){
-                                remove_client(client_id, function(session){
-                                    session.sendLogoff();
-                                });
+                                global.clients.delete(client_id);
                             } else {
                                 save_message(client_id, msg);
                                 if (user != undefined)
@@ -116,8 +132,7 @@ router.post('/connect', function(req, res) {
                     session.on('error', function(msg) {});
                     session.on('state', function(msg) {});
                     session.on('disconnect', function(msg) {
-                        logger.warn('Disconnect from server side');
-                        remove_client(client_id, function(){});
+                        global.clients.delete(client_id);
                     });
                 });
         });
@@ -139,10 +154,13 @@ router.post('/isconnected', function(req, res) {
 
 router.post('/disconnect', function(req, res) {
     var client_id = req.body.client;
-    remove_client(client_id, function(session){
+    var client = global.clients.get(client_id);
+    if (client != undefined) {
+        client.session.sendLogoff();
         res.send({ status: true });
-        session.sendLogoff();
-    });
+    } else {
+        res.send( {status: false, error: 'client does not exists'});
+    }
 });
 
 router.post('/send', function(req, res) {
@@ -155,10 +173,15 @@ router.post('/send', function(req, res) {
         }
     }
 
-    sendmessage(client, client_id, message, null, function(result, key_list) {
+    sendmessage(client, client_id, message, function(result, key) {
         var messages = [];
-        key_list.forEach(function(key) {
-            messages.push({key: key, messages:global.clients.get(client_id).messages.get(key)});
+        var key_name = Object.keys(key)[0];
+        var key_value = key[key_name];
+        var index_dict = global.clients.get(client_id).index.get(key_name);
+        var message_guids = index_dict.get(key_value);
+
+        message_guids.forEach(function(m) {
+            messages.push(global.clients.get(client_id).messages.get(m));
         });
 
         res.send({ status: result, messages: messages});
@@ -171,14 +194,14 @@ router.post('/send/bulk', function(req, res) {
     var message = req.body.message;
     var bulk_amount = req.body.amount;
     var bulk_tps = req.body.tps == undefined ? 1 : req.body.tps;
-    var reference_bulk_id = req.body.reference_bulk_id;
-    var reference_bulk = null;
+    var bulk_refer_id = req.body.refer_id;
+
     var new_bulk_id = util.guid();
     var new_bulk = {
         id: new_bulk_id,
         state: 1, //0 - stop, 1 - running, 2 - error
         create_time: Date.now(),
-        orders: []
+        messages: []
     }
     client.bulk.set(new_bulk_id, new_bulk);
 
@@ -188,17 +211,17 @@ router.post('/send/bulk', function(req, res) {
         }
     }
 
-    if (reference_bulk_id != undefined) {
-        reference_bulk = client.bulk.get(reference_bulk_id);
-        if (reference_bulk == null) {
-            res.send({ status: false, error: "The reference bulk running "+reference_bulk_id+" is not exists." });
-            return;
-        } else {
-            bulk_amount = reference_bulk.orders.length;
-        }
+    var refer_messages = [];
+    if (bulk_refer_id != undefined) {
+        var refer_bulk = client.bulk.get(bulk_refer_id);
+        refer_bulk.messages.forEach(function(rm) {
+            var last_refer_msg = rm.values[rm.values.length - 1];
+            refer_messages.push(last_refer_msg);
+        });
+        bulk_amount = refer_messages.length;
     }
 
-    var interval = (1000 / bulk_tps - 0.3);
+    var interval = (bulk_tps >= 1000) ? 1 : (1000 / bulk_tps - 0.3);
     var index = 0;
     new_bulk.state = 1; // Start bulking
 
@@ -206,26 +229,31 @@ router.post('/send/bulk', function(req, res) {
             return index < bulk_amount && new_bulk.state == 1;
         },
         function(next) {
-            var reference = null;
-            if (reference_bulk != undefined){
-                var refer_order = reference_bulk.orders[index];
-                var refer_order_msgs = refer_order.order_messages[refer_order.order_messages.length-1];
-                reference = refer_order_msgs.messages[refer_order_msgs.messages.length - 1];
+            var message_template = deepCopy(message);
+            var message_reference = deepCopy(refer_messages[index]);
+            var message_sending = null;
+            if (bulk_refer_id != undefined) {
+                message_sending = build_message_from_reference(message_template, message_reference);
+            } else {
+                message_sending = message_template;
             }
-            sendmessage(client, client_id, message, reference, function(result, key_list) {
+            sendmessage(client, client_id, message_sending, function(result, key) {
                 var messages = [];
-                var k = key_list[0];
-                key_list.forEach(function(key) {
-                    messages.push({key: key, messages:global.clients.get(client_id).messages.get(key)});
+                var key_name = Object.keys(key)[0];
+                var key_value = key[key_name];
+                var index_dict = global.clients.get(client_id).index.get(key_name);
+                var message_guids = index_dict.get(key_value);
+
+                message_guids.forEach(function(m) {
+                    messages.push(global.clients.get(client_id).messages.get(m));
                 });
-                new_bulk.orders.push( {
-                    "order_initial_id": k,
-                    "order_status": result,
-                    "order_messages" :  messages
+
+                new_bulk.messages.push( {
+                    key: key_value,
+                    values: messages
                 });
             });
-            index++;
-            setTimeout(function(){ next(); }, interval);
+            setTimeout(function(){ index++; next(); }, interval);
         },
         function(err) {
             if (err) console.log(err);
@@ -250,50 +278,75 @@ router.post('/send/bulk/result', function(req, res) {
         if (!detail){
             res.send({
                 status: bulk.state,
-                count:  bulk.orders.length
+                count:  bulk.messages.length
             });
         } else {
             var result = {
                 status: bulk.state,
-                count:  bulk.orders.length,
-                orders: []
+                count:  bulk.messages.length,
+                messages: bulk.messages
             };
-            bulk.orders.forEach(function(o) {
-                result.orders.push({
-                    "order_initial_id": o.order_initial_id,
-                    "order_status": o.order_status,
-                });
-            })
             res.send(result);
         }
     }
 });
 
-router.post('/send/bulk/result/detail', function(req, res) {
+router.post('/message/get', function(req, res) {
     var client_id = req.body.client;
-    var bulk_id = req.body.bulk_id;
-    var order_initial_id = req.body.order_id;
-
     var client = global.clients.get(client_id);
-    var bulk = client.bulk.get(bulk_id);
-
-    if (bulk == undefined) {
-        res.send ({status: false, error: 'Cannot find Bulking ' +bulk_id});
-    } else {
-        var result = bulk.orders.filter(function(o) { return o.order_initial_id == order_initial_id});
-        if (result.length > 0) {
-            res.send({
-                status: true,
-                order: result[0]
-            });
-        } else {
-            res.send({
-                status: false,
-                error: 'Cannot find order: ' +order_initial_id
-            });
+    var messages = [];
+    var keys = req.body.keys;
+    if (keys != undefined) {
+        if ((typeof keys) == "string") {
+            keys = JSON.parse(keys);
         }
     }
+
+    keys.forEach(function(key) {
+        var key_name = Object.keys(key)[0];
+        var key_value = key[key_name];
+        var key_messages = [];
+
+        var index_dict = client.index.get(key_name);
+        var message_guids = index_dict.get(key_value);
+
+        message_guids.forEach(function(m) {
+            key_messages.push(global.clients.get(client_id).messages.get(m));
+        });
+
+        messages.push( { key: key_value, messages: key_messages});
+    });
+    res.send({
+        status: true,
+        messages: messages
+    });
 });
+
+// router.post('/send/bulk/result/detail', function(req, res) {
+//     var client_id = req.body.client;
+//     var bulk_id = req.body.bulk_id;
+//     var order_initial_id = req.body.order_id;
+
+//     var client = global.clients.get(client_id);
+//     var bulk = client.bulk.get(bulk_id);
+
+//     if (bulk == undefined) {
+//         res.send ({status: false, error: 'Cannot find Bulking ' +bulk_id});
+//     } else {
+//         var result = bulk.orders.filter(function(o) { return o.order_initial_id == order_initial_id});
+//         if (result.length > 0) {
+//             res.send({
+//                 status: true,
+//                 order: result[0]
+//             });
+//         } else {
+//             res.send({
+//                 status: false,
+//                 error: 'Cannot find order: ' +order_initial_id
+//             });
+//         }
+//     }
+// });
 
 router.post('/send/bulk/stop', function(req, res) {
     var client_id = req.body.client;
@@ -310,156 +363,103 @@ router.post('/send/bulk/stop', function(req, res) {
     }
 });
 
-var sendmessage = function(client, client_id, message, reference, callback) {
-    var message_queue = [];
-    var message_key_list = [];
-    if (Array.isArray(message)){
-        message_queue = message;
-    } else {
-        message_queue.push(message);
-    }
-    var index = 0;
-    var stop_whilst = false;
+var sendmessage = function(client, client_id, message, callback) {
     var resp_status = false;
-    var final_result = false;
+    var messageClone = deepCopy(message);
+    var s_key = {};
+    var s_message = { value: null, expected: null };
 
-    async.whilst(function() {
-        return index < message_queue.length && stop_whilst == false;
-    },
-    function(next) {
-        var message = message_queue[index];
-        var s_message = {
-            value: null,
-            expected: null
-        };
+    if ('value' in messageClone) {
+        s_message.value = enhance_message(messageClone.value);
+    } else {
+        s_message.value = enhance_message(messageClone);
+    }
+    if ('expected' in messageClone){
+        s_message.expected = messageClone.expected;
+    } else {
+        switch(messageClone[35]) {
+            case 'D':
+                s_message.expected = {'39':'0', '150':'0'}
+                break;
+            case 'G':
+                s_message.expected = {'39':'0', '150':'5'}
+                break;
+            case 'F':
+                s_message.expected = {'39':'4', '150':'4'}
+                break;
+        }
+    }
+    if ('11' in s_message.value){
+        s_key = {"11" : s_message.value[11]};
+    } else if ('198' in s_message.value) {
+        s_key = {"198" : s_message.value[198]};
+    }
 
-        index++;
-        if ('value' in message) {
-            s_message.value = message.value;
-        } else {
-            s_message.value = message;
-        }
-        if (('expected' in message)){
-            s_message.expected = message.expected;
-        } else {
-            switch(message[35]) {
-                case 'D':
-                    s_message.expected = {'39':'0', '150':'0'}
-                    break;
-                case 'G':
-                    s_message.expected = {'39':'0', '150':'5'}
-                    break;
-                case 'F':
-                    s_message.expected = {'39':'4', '150':'4'}
-                    break;
-            }
-        }
-        sending_single(client, s_message, reference, function(key, expected) {
-            if (key != undefined) {
-                message_key_list.push(key);
-                waitUntil().interval(10)
-                           .times(50)
-                           .condition(function() {
-                                var msglist = global.clients.get(client_id).messages.get(key);
-                                var found = true;
-                                msglist.forEach(function(m) {
-                                    for (var key in expected) {
-                                        if (expected.hasOwnProperty(key)){
-                                            if (key in m) {
-                                                if (m[key] != expected[key]) {
-                                                    found = false;
-                                                    return;
-                                                } else {
-                                                    found = true;
-                                                }
-                                            } else {
-                                                found = false;
-                                                return;
-                                            }
-                                        }
-                                    }
-                                });
-                                return (found);
-                           })
-                           .done(function(result) {
-                                if (result) {
-                                    var msglist = global.clients.get(client_id).messages.get(key);
-                                    reference = msglist[msglist.length -1];
-                                    final_result = true;
-                                } else {
-                                    stop_whilst = true;
-                                    final_result = false;
-                                }
-                                next();
-                           });
-            }
+    client.session.sendMsg(s_message.value);
+
+    var key_name = Object.keys(s_key)[0];
+    var key_value = s_key[key_name];
+    waitUntil()
+        .interval(10)
+        .times(100)
+        .condition(function() {
+            var index_dict = global.clients.get(client_id).index.get(key_name);
+            var message_guids = index_dict.get(key_value);
+            var found_msg = null;
+            message_guids.forEach(function(m) {
+                var msg = global.clients.get(client_id).messages.get(m);
+                if (is_message_with_expected_tags(msg, s_message.expected))
+                    found_msg = msg;
+            });
+            return found_msg == undefined ?  false : true;
+        })
+        .done(function(result) {
+            callback(result, s_key);
         });
-    },
-    function(err) {
-        if (err) console.log(err);
-        callback(final_result, message_key_list);
-    });
 };
 
-var build_message_from_reference = function(message_template, reference_message){
-    var message = deepCopy(message_template);
-
-    for (var key in message) {
-        if (message.hasOwnProperty(key)) {
-            if (message[key].startsWith(':'))
-            {
-                var tag_name = message[key].replace(':','');
-                var tag_value = null;
-                if (tag_name in reference_message) {
-                    tag_value = reference_message[tag_name];
+var is_message_with_expected_tags = function(message, expected) {
+    var is_found = true;
+    for (var exp_key in expected) {
+        if (expected.hasOwnProperty(exp_key)){
+            if (exp_key in message) {
+                if (message[exp_key] != expected[exp_key]) {
+                    is_found = false;
+                    return;
                 }
-                if (tag_value == undefined)
-                    delete message[key];
-                else
-                    message[key] = tag_value;
+            } else {
+                is_found = false;
+                return;
             }
         }
     }
 
-    return message;
+    return is_found;
 }
 
-var remove_client = function(client_id, callback) {
-    var client = global.clients.get(client_id);
-    if (client != undefined){
-        global.clients.delete(client_id);
-        callback(client.session);
-    }
-}
-
-var sending_single = function(client, message, reference, callback) {
-    var messageClone = deepCopy(message);
-    var msg = enhance_message(messageClone.value);
-    if (reference != undefined) {
-        msg = build_message_from_reference(msg, reference);
-    }
-    client.session.sendMsg(msg);
-    callback(msg[11], messageClone.expected);
-}
-
-var sending_bulk = function(client, message_list, bulk, interval, callback) {
-    var index = 0;
-    var keys = [];
-    async.whilst(function() {
-            return index < message_list.length && bulk.state == 1;
-        },
-        function(next) {
-            keys.push(message_list[index][11]);
-            client.session.sendMsg(message_list[index]);
-            index++;
-            setTimeout(function(){ next(); }, interval);
-        },
-        function(err) {
-            if (err) { console.log(err); bulk.state = 2 }
-            else { bulk.state = 0; }
-            callback(keys);
+var build_message_from_reference = function(message_template, reference_message){
+    for (var key in message_template) {
+        if (message_template.hasOwnProperty(key)) {
+        	if (message_template[key] == undefined) {
+        		delete message_template[key];
+        	} else {
+        		var value = message_template[key].toString();
+	            if (value.indexOf(':') === 0)
+	            {
+	            	var tag_name = message_template[key].replace(':','');
+	                var tag_value = null;
+	                if (tag_name in reference_message) {
+	                    tag_value = reference_message[tag_name];
+	                }
+	                if (tag_value == undefined)
+	                    delete message_template[key];
+	                else
+	                    message_template[key] = tag_value;
+	            }
+        	}
         }
-    );
+    }
+    return message_template;
 }
 
 var deepCopy = function(obj) {
